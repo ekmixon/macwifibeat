@@ -33,9 +33,9 @@ class Test(BaseTest):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # TCP
         sock.connect((host, port))
 
-        for n in range(0, 2):
+        for n in range(2):
             m = "<13>Oct 11 22:14:15 wopr.mymachine.co postfix/smtpd[2000]:" \
-                " 'su root' failed for lonvick on /dev/pts/8 {}\n"
+                    " 'su root' failed for lonvick on /dev/pts/8 {}\n"
             m = m.format(n)
             sock.send(m)
 
@@ -74,9 +74,9 @@ class Test(BaseTest):
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # TCP
 
-        for n in range(0, 2):
+        for n in range(2):
             m = "<13>Oct 11 22:14:15 wopr.mymachine.co postfix/smtpd[2000]:" \
-                " 'su root' failed for lonvick on /dev/pts/8 {}\n"
+                    " 'su root' failed for lonvick on /dev/pts/8 {}\n"
             m = m.format(n)
             sock.sendto(m, (host, port))
 

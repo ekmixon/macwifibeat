@@ -22,8 +22,10 @@ def main(arguments):
     # Recursively find all matching .cov files.
     matches = []
     for root, dirnames, filenames in os.walk(args.dir):
-        for filename in fnmatch.filter(filenames, '*.cov'):
-            matches.append(os.path.join(root, filename))
+        matches.extend(
+            os.path.join(root, filename)
+            for filename in fnmatch.filter(filenames, '*.cov')
+        )
 
     # Write to output.
     lines = {}
@@ -42,7 +44,7 @@ def main(arguments):
                             assert prev_stmt == stmt
                         lines[position] = (position, stmt, prev_count + count)
 
-    for line in sorted(["%s %d %d\n" % lines[key] for key in lines.keys()]):
+    for line in sorted(["%s %d %d\n" % lines[key] for key in lines]):
         args.outfile.write(line)
 
 

@@ -60,7 +60,6 @@ def parse_line(line, regexp, categories, categories_set):
     variable = None
     if matches:
         name = None
-        variable = False
         try:
             name = matches.group("varname")
             is_variable = True
@@ -75,11 +74,8 @@ def parse_line(line, regexp, categories, categories_set):
             name = matches.group("name")
             is_variable = False
 
-        if name:
-            variable = [name, default]
-
-        category = matches.group("category")
-        if category:
+        variable = [name, default] if name else False
+        if category := matches.group("category"):
             category = category.replace("_", " ").capitalize()
             doc = matches.group("doc").rstrip('.').rstrip()
             doc = doc[0].capitalize() + doc[1:]  # Capitalize the first word
@@ -119,17 +115,21 @@ def substitute_variable_targets(targets, variables):
 def print_help(categories, categories_set):
     column_size = max(len(rule["name"]) for category in categories_set for rule in categories[category])
     for category in categories_set:
-        print("\n{}:".format(category))
+        print(f"\n{category}:")
         for rule in categories[category]:
             if "name" in rule:
                 name = rule["name"]
             if "varname" in rule:
                 name = rule["varname"]
             default = rule["default"]
-            print("\t{target: <{fill}}\t{doc}.{default}".format(
-                target=rule["name"], fill=column_size,
-                doc=rule["doc"],
-                default=(" Default: {}".format(default) if default else "")))
+            print(
+                "\t{target: <{fill}}\t{doc}.{default}".format(
+                    target=rule["name"],
+                    fill=column_size,
+                    doc=rule["doc"],
+                    default=f" Default: {default}" if default else "",
+                )
+            )
 
 
 if __name__ == "__main__":

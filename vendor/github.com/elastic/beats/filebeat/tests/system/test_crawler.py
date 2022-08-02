@@ -20,20 +20,15 @@ class Test(BaseTest):
         Checks if all lines are read from the log file.
         """
 
-        self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/log/*"
-        )
-        os.mkdir(self.working_dir + "/log/")
+        self.render_config_template(path=f"{os.path.abspath(self.working_dir)}/log/*")
+        os.mkdir(f"{self.working_dir}/log/")
 
-        testfile = self.working_dir + "/log/test.log"
-        file = open(testfile, 'w')
-
-        iterations = 80
-        for n in range(0, iterations):
-            file.write("hello world" + str(n))
-            file.write("\n")
-
-        file.close()
+        testfile = f"{self.working_dir}/log/test.log"
+        with open(testfile, 'w') as file:
+            iterations = 80
+            for n in range(iterations):
+                file.write(f"hello world{str(n)}")
+                file.write("\n")
 
         filebeat = self.start_beat()
 
@@ -56,48 +51,43 @@ class Test(BaseTest):
         Continuing writing the file must the pick up the line.
         """
 
-        self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/log/*"
-        )
-        os.mkdir(self.working_dir + "/log/")
+        self.render_config_template(path=f"{os.path.abspath(self.working_dir)}/log/*")
+        os.mkdir(f"{self.working_dir}/log/")
 
-        testfile = self.working_dir + "/log/test.log"
-        file = open(testfile, 'w', 0)
+        testfile = f"{self.working_dir}/log/test.log"
+        with open(testfile, 'w', 0) as file:
+            iterations = 80
+            for n in range(iterations):
+                file.write(f"hello world{str(n)}")
+                file.write("\n")
 
-        iterations = 80
-        for n in range(0, iterations):
-            file.write("hello world" + str(n))
+            # An additional line is written to the log file. This line should not
+            # be read as there is no finishing \n or \r
+            file.write("unfinished line")
+
+            filebeat = self.start_beat()
+
+            self.wait_until(
+                lambda: self.output_has(lines=80),
+                max_timeout=15)
+
+            # Give it more time to make sure it doesn't read the unfinished line
+            # This must be smaller then partial_line_waiting
+            time.sleep(1)
+
+            output = self.read_output()
+
+            # Check that output file has the same number of lines as the log file
+            assert iterations == len(output)
+
+            # Complete line so it can be picked up
             file.write("\n")
+            self.wait_until(
+                lambda: self.output_has(lines=81),
+                max_timeout=15)
 
-        # An additional line is written to the log file. This line should not
-        # be read as there is no finishing \n or \r
-        file.write("unfinished line")
-
-        filebeat = self.start_beat()
-
-        self.wait_until(
-            lambda: self.output_has(lines=80),
-            max_timeout=15)
-
-        # Give it more time to make sure it doesn't read the unfinished line
-        # This must be smaller then partial_line_waiting
-        time.sleep(1)
-
-        output = self.read_output()
-
-        # Check that output file has the same number of lines as the log file
-        assert iterations == len(output)
-
-        # Complete line so it can be picked up
-        file.write("\n")
-        self.wait_until(
-            lambda: self.output_has(lines=81),
-            max_timeout=15)
-
-        # Add one more line to make sure it keeps reading
-        file.write("HelloWorld \n")
-        file.close()
-
+            # Add one more line to make sure it keeps reading
+            file.write("HelloWorld \n")
         self.wait_until(
             lambda: self.output_has(lines=82),
             max_timeout=15)
@@ -114,12 +104,10 @@ class Test(BaseTest):
         Checks that partial lines are read as intended
         """
 
-        self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/log/*",
-        )
-        os.mkdir(self.working_dir + "/log/")
+        self.render_config_template(path=f"{os.path.abspath(self.working_dir)}/log/*")
+        os.mkdir(f"{self.working_dir}/log/")
 
-        testfile = self.working_dir + "/log/test.log"
+        testfile = f"{self.working_dir}/log/test.log"
         file = open(testfile, 'w', 0)
 
         # An additional line is written to the log file. This line should not
@@ -163,20 +151,15 @@ class Test(BaseTest):
         Makes sure that when a file is renamed, the content is not read again.
         """
 
-        self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/log/*"
-        )
-        os.mkdir(self.working_dir + "/log/")
+        self.render_config_template(path=f"{os.path.abspath(self.working_dir)}/log/*")
+        os.mkdir(f"{self.working_dir}/log/")
 
-        testfile1 = self.working_dir + "/log/test-old.log"
-        file = open(testfile1, 'w')
-
-        iterations1 = 5
-        for n in range(0, iterations1):
-            file.write("old file")
-            file.write("\n")
-
-        file.close()
+        testfile1 = f"{self.working_dir}/log/test-old.log"
+        with open(testfile1, 'w') as file:
+            iterations1 = 5
+            for _ in range(iterations1):
+                file.write("old file")
+                file.write("\n")
 
         filebeat = self.start_beat()
 
@@ -184,18 +167,15 @@ class Test(BaseTest):
             lambda: self.output_has(lines=iterations1), max_timeout=10)
 
         # Rename the file (no new file created)
-        testfile2 = self.working_dir + "/log/test-new.log"
+        testfile2 = f"{self.working_dir}/log/test-new.log"
         os.rename(testfile1, testfile2)
-        file = open(testfile2, 'a')
-
-        # using 6 events to have a separate log line that we can
-        # grep for.
-        iterations2 = 6
-        for n in range(0, iterations2):
-            file.write("new file")
-            file.write("\n")
-
-        file.close()
+        with open(testfile2, 'a') as file:
+            # using 6 events to have a separate log line that we can
+            # grep for.
+            iterations2 = 6
+            for _ in range(iterations2):
+                file.write("new file")
+                file.write("\n")
 
         # expecting 6 more events
         self.wait_until(
@@ -214,20 +194,18 @@ class Test(BaseTest):
         """
 
         self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/log/*",
+            path=f"{os.path.abspath(self.working_dir)}/log/*",
             clean_removed="false",
         )
-        os.mkdir(self.working_dir + "/log/")
 
-        testfile = self.working_dir + "/log/test.log"
-        file = open(testfile, 'w')
+        os.mkdir(f"{self.working_dir}/log/")
 
-        iterations1 = 5
-        for n in range(0, iterations1):
-            file.write("disappearing file")
-            file.write("\n")
-
-        file.close()
+        testfile = f"{self.working_dir}/log/test.log"
+        with open(testfile, 'w') as file:
+            iterations1 = 5
+            for _ in range(iterations1):
+                file.write("disappearing file")
+                file.write("\n")
 
         filebeat = self.start_beat()
 
@@ -237,15 +215,12 @@ class Test(BaseTest):
         os.remove(testfile)
 
         # Create new file to check if new file is picked up
-        testfile2 = self.working_dir + "/log/test2.log"
-        file = open(testfile2, 'w')
-
-        iterations2 = 6
-        for n in range(0, iterations2):
-            file.write("new file")
-            file.write("\n")
-
-        file.close()
+        testfile2 = f"{self.working_dir}/log/test2.log"
+        with open(testfile2, 'w') as file:
+            iterations2 = 6
+            for _ in range(iterations2):
+                file.write("new file")
+                file.write("\n")
 
         # Let it read the file
         self.wait_until(
@@ -272,26 +247,24 @@ class Test(BaseTest):
         """
 
         self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/log/*.log",
+            path=f"{os.path.abspath(self.working_dir)}/log/*.log",
             close_removed="true",
             scan_frequency="0.1s",
             clean_removed="false",
         )
-        os.mkdir(self.working_dir + "/log/")
 
-        testfile = self.working_dir + "/log/test.log"
-        testfilenew = self.working_dir + "/log/hiddenfile"
-        file = open(testfile, 'w')
+        os.mkdir(f"{self.working_dir}/log/")
 
-        # Creates testfile now, to prevent inode reuse
-        open(testfilenew, 'a').close()
+        testfile = f"{self.working_dir}/log/test.log"
+        testfilenew = f"{self.working_dir}/log/hiddenfile"
+        with open(testfile, 'w') as file:
+            # Creates testfile now, to prevent inode reuse
+            open(testfilenew, 'a').close()
 
-        iterations1 = 5
-        for n in range(0, iterations1):
-            file.write("disappearing file")
-            file.write("\n")
-
-        file.close()
+            iterations1 = 5
+            for _ in range(iterations1):
+                file.write("disappearing file")
+                file.write("\n")
 
         filebeat = self.start_beat()
 
@@ -308,14 +281,11 @@ class Test(BaseTest):
 
         # Move file to old file name
         shutil.move(testfilenew, testfile)
-        file = open(testfile, 'w')
-
-        iterations2 = 6
-        for n in range(0, iterations2):
-            file.write("new file")
-            file.write("\n")
-
-        file.close()
+        with open(testfile, 'w') as file:
+            iterations2 = 6
+            for _ in range(iterations2):
+                file.write("new file")
+                file.write("\n")
 
         # Let it read the file
         self.wait_until(
@@ -340,12 +310,10 @@ class Test(BaseTest):
         file.
         """
 
-        self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/log/*"
-        )
-        os.mkdir(self.working_dir + "/log/")
+        self.render_config_template(path=f"{os.path.abspath(self.working_dir)}/log/*")
+        os.mkdir(f"{self.working_dir}/log/")
 
-        testfile = self.working_dir + "/log/test.log"
+        testfile = f"{self.working_dir}/log/test.log"
         with open(testfile, 'w') as f:
             f.write("hello world\n")
 
@@ -374,12 +342,10 @@ class Test(BaseTest):
         after appending multiple times
         """
 
-        self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/log/*"
-        )
-        os.mkdir(self.working_dir + "/log/")
+        self.render_config_template(path=f"{os.path.abspath(self.working_dir)}/log/*")
+        os.mkdir(f"{self.working_dir}/log/")
 
-        testfile = self.working_dir + "/log/test.log"
+        testfile = f"{self.working_dir}/log/test.log"
 
         filebeat = self.start_beat()
 
@@ -397,8 +363,8 @@ class Test(BaseTest):
         for n in range(3):
             with open(testfile, 'a') as f:
 
-                for i in range(0, 20 + n):
-                    f.write("hello world " + str(i) + " " + str(n) + "\n")
+                for i in range(20 + n):
+                    f.write(f"hello world {str(i)} {str(n)}" + "\n")
                     lines_written = lines_written + 1
 
                 f.flush()
@@ -411,7 +377,7 @@ class Test(BaseTest):
 
         # Check that output file has the same number of lines as the log file
         output = self.read_output()
-        assert len(output) == (3 * 20 + sum(range(0, 3)) + 1)
+        assert len(output) == 3 * 20 + sum(range(3)) + 1
 
     def test_new_line_on_open_file(self):
         """
@@ -420,12 +386,10 @@ class Test(BaseTest):
         time keep the file open and just flush it.
         """
 
-        self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/log/*"
-        )
-        os.mkdir(self.working_dir + "/log/")
+        self.render_config_template(path=f"{os.path.abspath(self.working_dir)}/log/*")
+        os.mkdir(f"{self.working_dir}/log/")
 
-        testfile = self.working_dir + "/log/test.log"
+        testfile = f"{self.working_dir}/log/test.log"
         with open(testfile, 'w') as f:
             f.write("hello world\n")
             f.flush()
@@ -458,12 +422,12 @@ class Test(BaseTest):
         """
 
         self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/log/*",
-            tail_files="true"
+            path=f"{os.path.abspath(self.working_dir)}/log/*", tail_files="true"
         )
-        os.mkdir(self.working_dir + "/log/")
 
-        testfile = self.working_dir + "/log/test.log"
+        os.mkdir(f"{self.working_dir}/log/")
+
+        testfile = f"{self.working_dir}/log/test.log"
         with open(testfile, 'w') as f:
             # Write lines before registrar started
             f.write("hello world 1\n")
@@ -502,12 +466,12 @@ class Test(BaseTest):
         """
 
         self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/log/*",
-            encoding="utf-8"
+            path=f"{os.path.abspath(self.working_dir)}/log/*", encoding="utf-8"
         )
-        os.mkdir(self.working_dir + "/log/")
 
-        testfile = self.working_dir + "/log/test.log"
+        os.mkdir(f"{self.working_dir}/log/")
+
+        testfile = f"{self.working_dir}/log/test.log"
 
         filebeat = self.start_beat()
         self.wait_until(
@@ -566,19 +530,17 @@ class Test(BaseTest):
         ]
 
         # create a file in each encoding
-        os.mkdir(self.working_dir + "/log/")
+        os.mkdir(f"{self.working_dir}/log/")
         for _, enc_py, text in encodings:
-            with codecs.open(self.working_dir + "/log/test-{}".format(enc_py),
-                             "w", enc_py) as f:
+            with codecs.open(self.working_dir + f"/log/test-{enc_py}", "w", enc_py) as f:
                 f.write(text + "\n")
 
         # create the config file
-        inputs = []
-        for enc_go, enc_py, _ in encodings:
-            inputs.append({
-                "path": self.working_dir + "/log/test-{}".format(enc_py),
-                "encoding": enc_go
-            })
+        inputs = [
+            {"path": self.working_dir + f"/log/test-{enc_py}", "encoding": enc_go}
+            for enc_go, enc_py, _ in encodings
+        ]
+
         self.render_config_template(
             template_name="filebeat_inputs",
             inputs=inputs
@@ -591,9 +553,8 @@ class Test(BaseTest):
 
         # write another line in all files
         for _, enc_py, text in encodings:
-            with codecs.open(self.working_dir + "/log/test-{}".format(enc_py),
-                             "a", enc_py) as f:
-                f.write(text + " 2" + "\n")
+            with codecs.open(self.working_dir + f"/log/test-{enc_py}", "a", enc_py) as f:
+                f.write(f"{text} 2" + "\n")
 
         # wait again
         self.wait_until(lambda: self.output_has(lines=len(encodings) * 2),
@@ -606,7 +567,7 @@ class Test(BaseTest):
         lines = [o["message"] for o in output]
         for _, _, text in encodings:
             assert text in lines
-            assert text + " 2" in lines
+            assert f"{text} 2" in lines
 
     def test_include_lines(self):
         """
@@ -614,24 +575,22 @@ class Test(BaseTest):
         """
 
         self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/log/*",
-            include_lines=["^ERR", "^WARN"]
+            path=f"{os.path.abspath(self.working_dir)}/log/*",
+            include_lines=["^ERR", "^WARN"],
         )
-        os.mkdir(self.working_dir + "/log/")
 
-        testfile = self.working_dir + "/log/test.log"
-        file = open(testfile, 'w')
+        os.mkdir(f"{self.working_dir}/log/")
 
-        iterations = 20
-        for n in range(0, iterations):
-            file.write("DBG: a simple debug message" + str(n))
-            file.write("\n")
-            file.write("ERR: a simple error message" + str(n))
-            file.write("\n")
-            file.write("WARNING: a simple warning message" + str(n))
-            file.write("\n")
-
-        file.close()
+        testfile = f"{self.working_dir}/log/test.log"
+        with open(testfile, 'w') as file:
+            iterations = 20
+            for n in range(iterations):
+                file.write(f"DBG: a simple debug message{str(n)}")
+                file.write("\n")
+                file.write(f"ERR: a simple error message{str(n)}")
+                file.write("\n")
+                file.write(f"WARNING: a simple warning message{str(n)}")
+                file.write("\n")
 
         filebeat = self.start_beat()
 
@@ -651,24 +610,19 @@ class Test(BaseTest):
         Checks if all the log lines are exported by default
         """
 
-        self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/log/*"
-        )
-        os.mkdir(self.working_dir + "/log/")
+        self.render_config_template(path=f"{os.path.abspath(self.working_dir)}/log/*")
+        os.mkdir(f"{self.working_dir}/log/")
 
-        testfile = self.working_dir + "/log/test.log"
-        file = open(testfile, 'w')
-
-        iterations = 20
-        for n in range(0, iterations):
-            file.write("DBG: a simple debug message" + str(n))
-            file.write("\n")
-            file.write("ERR: a simple error message" + str(n))
-            file.write("\n")
-            file.write("WARNING: a simple warning message" + str(n))
-            file.write("\n")
-
-        file.close()
+        testfile = f"{self.working_dir}/log/test.log"
+        with open(testfile, 'w') as file:
+            iterations = 20
+            for n in range(iterations):
+                file.write(f"DBG: a simple debug message{str(n)}")
+                file.write("\n")
+                file.write(f"ERR: a simple error message{str(n)}")
+                file.write("\n")
+                file.write(f"WARNING: a simple warning message{str(n)}")
+                file.write("\n")
 
         filebeat = self.start_beat()
 
@@ -689,24 +643,22 @@ class Test(BaseTest):
         """
 
         self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/log/*",
-            exclude_lines=["^DBG"]
+            path=f"{os.path.abspath(self.working_dir)}/log/*",
+            exclude_lines=["^DBG"],
         )
-        os.mkdir(self.working_dir + "/log/")
 
-        testfile = self.working_dir + "/log/test.log"
-        file = open(testfile, 'w')
+        os.mkdir(f"{self.working_dir}/log/")
 
-        iterations = 20
-        for n in range(0, iterations):
-            file.write("DBG: a simple debug message" + str(n))
-            file.write("\n")
-            file.write("ERR: a simple error message" + str(n))
-            file.write("\n")
-            file.write("WARNING: a simple warning message" + str(n))
-            file.write("\n")
-
-        file.close()
+        testfile = f"{self.working_dir}/log/test.log"
+        with open(testfile, 'w') as file:
+            iterations = 20
+            for n in range(iterations):
+                file.write(f"DBG: a simple debug message{str(n)}")
+                file.write("\n")
+                file.write(f"ERR: a simple error message{str(n)}")
+                file.write("\n")
+                file.write(f"WARNING: a simple warning message{str(n)}")
+                file.write("\n")
 
         filebeat = self.start_beat()
 
@@ -727,25 +679,23 @@ class Test(BaseTest):
         """
 
         self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/log/*",
+            path=f"{os.path.abspath(self.working_dir)}/log/*",
             exclude_lines=["^DBG"],
-            include_lines=["apache"]
+            include_lines=["apache"],
         )
-        os.mkdir(self.working_dir + "/log/")
 
-        testfile = self.working_dir + "/log/test.log"
-        file = open(testfile, 'w')
+        os.mkdir(f"{self.working_dir}/log/")
 
-        iterations = 20
-        for n in range(0, iterations):
-            file.write("DBG: a simple debug message" + str(n))
-            file.write("\n")
-            file.write("ERR: apache simple error message" + str(n))
-            file.write("\n")
-            file.write("ERR: a simple warning message" + str(n))
-            file.write("\n")
-
-        file.close()
+        testfile = f"{self.working_dir}/log/test.log"
+        with open(testfile, 'w') as file:
+            iterations = 20
+            for n in range(iterations):
+                file.write(f"DBG: a simple debug message{str(n)}")
+                file.write("\n")
+                file.write(f"ERR: apache simple error message{str(n)}")
+                file.write("\n")
+                file.write(f"ERR: a simple warning message{str(n)}")
+                file.write("\n")
 
         filebeat = self.start_beat()
 
@@ -768,20 +718,15 @@ class Test(BaseTest):
             # root ignores permission flags, so we have to skip the test
             raise SkipTest
 
-        self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/log/*",
-        )
-        os.mkdir(self.working_dir + "/log/")
+        self.render_config_template(path=f"{os.path.abspath(self.working_dir)}/log/*")
+        os.mkdir(f"{self.working_dir}/log/")
 
-        testfile = self.working_dir + "/log/test.log"
-        file = open(testfile, 'w')
-
-        iterations = 3
-        for n in range(0, iterations):
-            file.write("Hello World" + str(n))
-            file.write("\n")
-
-        file.close()
+        testfile = f"{self.working_dir}/log/test.log"
+        with open(testfile, 'w') as file:
+            iterations = 3
+            for n in range(iterations):
+                file.write(f"Hello World{str(n)}")
+                file.write("\n")
 
         # Remove reading rights from file
         os.chmod(testfile, 0o000)
@@ -789,31 +734,6 @@ class Test(BaseTest):
         if os.name == "nt":
 
             raise SkipTest
-            # TODO: Currently skipping this test on windows as it requires `pip install win32api`
-            # which seems to have windows only dependencies.
-            # To solve this problem a requirements_windows.txt could be introduced which would
-            # then only be used on Windows.
-            #
-            # Below is some additional code to give some indication on how the implementation could
-            # look like.
-
-            from win32 import win32api
-            import win32security
-            import ntsecuritycon as con
-
-            user, domain, type = win32security.LookupAccountName(
-                "", win32api.GetUserName())
-            sd = win32security.GetFileSecurity(
-                testfile, win32security.DACL_SECURITY_INFORMATION)
-
-            dacl = win32security.ACL()
-            # Remove all access rights
-            dacl.AddAccessAllowedAce(win32security.ACL_REVISION, 0, user)
-
-            sd.SetSecurityDescriptorDacl(1, dacl, 0)
-            win32security.SetFileSecurity(
-                testfile, win32security.DACL_SECURITY_INFORMATION, sd)
-
         filebeat = self.start_beat()
 
         self.wait_until(

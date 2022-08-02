@@ -14,11 +14,12 @@ class Test(BaseTest):
         Tests that custom fields show up in the output dict.
         """
         self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/test.log",
-            fields={"hello": "world", "number": 2}
+            path=f"{os.path.abspath(self.working_dir)}/test.log",
+            fields={"hello": "world", "number": 2},
         )
 
-        with open(self.working_dir + "/test.log", "w") as f:
+
+        with open(f"{self.working_dir}/test.log", "w") as f:
             f.write("test message\n")
 
         filebeat = self.start_beat()
@@ -36,16 +37,13 @@ class Test(BaseTest):
         root when fields_under_root option is used.
         """
         self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/test.log",
-            fields={
-                "hello": "world",
-                "type": "log2",
-                "timestamp": "2"
-            },
-            fieldsUnderRoot=True
+            path=f"{os.path.abspath(self.working_dir)}/test.log",
+            fields={"hello": "world", "type": "log2", "timestamp": "2"},
+            fieldsUnderRoot=True,
         )
 
-        with open(self.working_dir + "/test.log", "w") as f:
+
+        with open(f"{self.working_dir}/test.log", "w") as f:
             f.write("test message\n")
 
         filebeat = self.start_beat()
@@ -66,11 +64,12 @@ class Test(BaseTest):
         tests that beat.hostname  has values.
         """
         self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/test.log",
-            shipper_name="testShipperName"
+            path=f"{os.path.abspath(self.working_dir)}/test.log",
+            shipper_name="testShipperName",
         )
 
-        with open(self.working_dir + "/test.log", "w") as f:
+
+        with open(f"{self.working_dir}/test.log", "w") as f:
             f.write("test message\n")
 
         filebeat = self.start_beat()

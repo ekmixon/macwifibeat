@@ -14,7 +14,7 @@ def ExportDashboards(es, regex, kibana_index, output_directory):
     try:
         reg_exp = re.compile(regex, re.IGNORECASE)
     except:
-        print("Wrong regex {}".format(regex))
+        print(f"Wrong regex {regex}")
         return
 
     for doc in res['hits']['hits']:
@@ -42,7 +42,7 @@ def ExportDashboards(es, regex, kibana_index, output_directory):
                     kibana_index,
                     output_directory)
             else:
-                print("Unknown type {} in dashboard".format(panel["type"]))
+                print(f'Unknown type {panel["type"]} in dashboard')
 
 
 def ExportVisualization(es, visualization, kibana_index, output_directory):
@@ -83,7 +83,7 @@ def SaveJson(doc_type, doc, output_directory):
     filepath = os.path.join(dir, re.sub(r'[\>\<:"/\\\|\?\*]', '', doc['_id']) + '.json')
     with open(filepath, 'w') as f:
         json.dump(doc['_source'], f, indent=2)
-        print("Written {}".format(filepath))
+        print(f"Written {filepath}")
 
 
 def main():
@@ -104,10 +104,9 @@ def main():
 
     args = parser.parse_args()
 
-    print("Export {} dashboards to {} directory".format(args.regex, args.dir))
-    print("Elasticsearch URL: {}".format(args.url))
-    print("Elasticsearch index to store Kibana's"
-          " dashboards: {}".format(args.kibana))
+    print(f"Export {args.regex} dashboards to {args.dir} directory")
+    print(f"Elasticsearch URL: {args.url}")
+    print(f"Elasticsearch index to store Kibana's dashboards: {args.kibana}")
 
     es = Elasticsearch(args.url)
     ExportDashboards(es, args.regex, args.kibana, args.dir)

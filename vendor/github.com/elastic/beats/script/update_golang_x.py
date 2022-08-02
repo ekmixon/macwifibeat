@@ -9,7 +9,7 @@ def update(pkg_name):
     """Call govendor on the targeted golang/x packages"""
 
     vendor_file = os.path.join('vendor', 'vendor.json')
-    target = 'golang.org/x/{}'.format(pkg_name)
+    target = f'golang.org/x/{pkg_name}'
 
     with open(vendor_file) as content:
         deps = json.load(content)

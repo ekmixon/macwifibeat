@@ -23,12 +23,13 @@ class Test(metricbeat.BaseTest):
         """
         self.render_config_template(
             reload=True,
-            reload_path=self.working_dir + "/configs/*.yml",
+            reload_path=f"{self.working_dir}/configs/*.yml",
             flush_min_events=1,
         )
+
         proc = self.start_beat()
 
-        os.mkdir(self.working_dir + "/configs/")
+        os.mkdir(f"{self.working_dir}/configs/")
 
         systemConfig = """
 - module: system
@@ -36,7 +37,7 @@ class Test(metricbeat.BaseTest):
   period: 1s
 """
 
-        with open(self.working_dir + "/configs/system.yml", 'w') as f:
+        with open(f"{self.working_dir}/configs/system.yml", 'w') as f:
             f.write(systemConfig)
 
         self.wait_until(lambda: self.output_lines() > 0)
@@ -49,12 +50,13 @@ class Test(metricbeat.BaseTest):
         """
         self.render_config_template(
             reload=True,
-            reload_path=self.working_dir + "/configs/*.yml",
+            reload_path=f"{self.working_dir}/configs/*.yml",
             flush_min_events=1,
         )
-        os.mkdir(self.working_dir + "/configs/")
 
-        config_path = self.working_dir + "/configs/system.yml"
+        os.mkdir(f"{self.working_dir}/configs/")
+
+        config_path = f"{self.working_dir}/configs/system.yml"
         proc = self.start_beat()
 
         systemConfig = """
@@ -96,12 +98,12 @@ class Test(metricbeat.BaseTest):
         Test beat errors when reload is disabled and some module config is wrong
         """
         self.render_config_template(
-            reload=False,
-            reload_path=self.working_dir + "/configs/*.yml",
+            reload=False, reload_path=f"{self.working_dir}/configs/*.yml"
         )
-        os.mkdir(self.working_dir + "/configs/")
 
-        config_path = self.working_dir + "/configs/system.yml"
+        os.mkdir(f"{self.working_dir}/configs/")
+
+        config_path = f"{self.working_dir}/configs/system.yml"
         systemConfig = """
 - module: system
   metricsets: ["wrong_metricset"]

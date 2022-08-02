@@ -37,7 +37,7 @@ class ComposeMixin(object):
             return
 
         def print_logs(container):
-            print("---- " + container.name_without_project)
+            print(f"---- {container.name_without_project}")
             print(container.logs())
             print("----")
 
@@ -62,8 +62,9 @@ class ComposeMixin(object):
                 if not container.is_running:
                     print_logs(container)
                     raise Exception(
-                        "Container %s unexpectedly finished on startup" %
-                        container.name_without_project)
+                        f"Container {container.name_without_project} unexpectedly finished on startup"
+                    )
+
                 if not is_healthy(container):
                     healthy = False
                     break
@@ -98,9 +99,12 @@ class ComposeMixin(object):
         hosts = []
         for container in cls.compose_project().containers(service_names=cls.COMPOSE_SERVICES):
             network_settings = container.inspect()['NetworkSettings']
-            for network in network_settings['Networks'].values():
-                if network['IPAddress']:
-                    hosts.append(network['IPAddress'])
+            hosts.extend(
+                network['IPAddress']
+                for network in network_settings['Networks'].values()
+                if network['IPAddress']
+            )
+
         return hosts
 
     @classmethod

@@ -27,11 +27,10 @@ def main():
 
     with open(goversion_filepath, "r") as f:
         for line in f:
-            match = pattern.match(line)
-            if match:
+            if match := pattern.match(line):
                 print(match.group('version'))
                 return
-        print ("No version found in file {}".format(goversion_filepath))
+        print(f"No version found in file {goversion_filepath}")
 
 if __name__ == "__main__":
     main()

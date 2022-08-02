@@ -34,15 +34,12 @@ class Test(metricbeat.BaseTest):
             if "worker" in evt["uwsgi"]["status"]:
                 workers.append(evt["uwsgi"]["status"]["worker"])
 
-        requests = 0
-        for core in cores:
-            requests += core["requests"]["total"]
-
+        requests = sum(core["requests"]["total"] for core in cores)
         assert requests == total["requests"]
         assert requests > 0
 
-        assert len(workers) > 0
-        assert len(cores) > 0
+        assert workers
+        assert cores
 
         assert "accepting" in workers[0]
         assert "worker_pid" in cores[0]

@@ -21,22 +21,17 @@ class Test(BaseTest):
         Check if registrar file is created correctly and content is as expected
         """
 
-        self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/log/*",
-        )
-        os.mkdir(self.working_dir + "/log/")
+        self.render_config_template(path=f"{os.path.abspath(self.working_dir)}/log/*")
+        os.mkdir(f"{self.working_dir}/log/")
 
         filebeat = self.start_beat()
 
-        testfile = self.working_dir + "/log/test.log"
-        file = open(testfile, 'w')
-
-        iterations = 5
-        for n in range(0, iterations):
-            file.write("line " + str(n + 1))
-            file.write("\n")
-
-        file.close()
+        testfile = f"{self.working_dir}/log/test.log"
+        with open(testfile, 'w') as file:
+            iterations = 5
+            for n in range(iterations):
+                file.write(f"line {str(n + 1)}")
+                file.write("\n")
 
         # Let it read the file
         self.wait_until(

@@ -16,13 +16,14 @@ class Test(BaseTest):
         """
 
         self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/log/test.log",
+            path=f"{os.path.abspath(self.working_dir)}/log/test.log",
             input_type_deprecated="log",
-            scan_frequency="0.1s"
+            scan_frequency="0.1s",
         )
-        os.mkdir(self.working_dir + "/log/")
 
-        logfile = self.working_dir + "/log/test.log"
+        os.mkdir(f"{self.working_dir}/log/")
+
+        logfile = f"{self.working_dir}/log/test.log"
 
         with open(logfile, 'w') as f:
             f.write("Hello world\n")
@@ -44,12 +45,13 @@ class Test(BaseTest):
 
         self.render_config_template(
             input_config="prospectors",
-            path=os.path.abspath(self.working_dir) + "/log/test.log",
-            scan_frequency="0.1s"
+            path=f"{os.path.abspath(self.working_dir)}/log/test.log",
+            scan_frequency="0.1s",
         )
-        os.mkdir(self.working_dir + "/log/")
 
-        logfile = self.working_dir + "/log/test.log"
+        os.mkdir(f"{self.working_dir}/log/")
+
+        logfile = f"{self.working_dir}/log/test.log"
 
         with open(logfile, 'w') as f:
             f.write("Hello world\n")
@@ -79,17 +81,18 @@ class Test(BaseTest):
         self.render_config_template(
             reload_type="prospectors",
             reload=True,
-            reload_path=self.working_dir + "/configs/*.yml",
+            reload_path=f"{self.working_dir}/configs/*.yml",
             inputs=False,
         )
 
-        os.mkdir(self.working_dir + "/logs/")
-        logfile1 = self.working_dir + "/logs/test1.log"
-        logfile2 = self.working_dir + "/logs/test2.log"
-        os.mkdir(self.working_dir + "/configs/")
 
-        with open(self.working_dir + "/configs/input.yml", 'w') as f:
-            f.write(inputConfigTemplate.format(self.working_dir + "/logs/test1.log"))
+        os.mkdir(f"{self.working_dir}/logs/")
+        logfile1 = f"{self.working_dir}/logs/test1.log"
+        logfile2 = f"{self.working_dir}/logs/test2.log"
+        os.mkdir(f"{self.working_dir}/configs/")
+
+        with open(f"{self.working_dir}/configs/input.yml", 'w') as f:
+            f.write(inputConfigTemplate.format(f"{self.working_dir}/logs/test1.log"))
 
         proc = self.start_beat()
 
@@ -98,8 +101,8 @@ class Test(BaseTest):
 
         self.wait_until(lambda: self.output_lines() > 0)
 
-        with open(self.working_dir + "/configs/input2.yml", 'w') as f:
-            f.write(inputConfigTemplate.format(self.working_dir + "/logs/test2.log"))
+        with open(f"{self.working_dir}/configs/input2.yml", 'w') as f:
+            f.write(inputConfigTemplate.format(f"{self.working_dir}/logs/test2.log"))
 
         self.wait_until(
             lambda: self.log_contains_count("Starting runner") == 2,

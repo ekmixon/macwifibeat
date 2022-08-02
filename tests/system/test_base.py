@@ -9,9 +9,7 @@ class Test(BaseTest):
         """
         Basic test with exiting Macwifibeat normally
         """
-        self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/log/*"
-        )
+        self.render_config_template(path=f"{os.path.abspath(self.working_dir)}/log/*")
 
         macwifibeat_proc = self.start_beat()
         self.wait_until(lambda: self.log_contains("macwifibeat is running"))

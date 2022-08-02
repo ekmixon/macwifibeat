@@ -11,7 +11,7 @@ class Test(BaseTest):
                             debug_selectors=["amqp,tcp,publish"])
 
         objs = self.read_output()
-        assert all([o["type"] == "amqp" for o in objs])
+        assert all(o["type"] == "amqp" for o in objs)
         assert len(objs) == 3
 
         assert objs[0]["method"] == "exchange.declare"

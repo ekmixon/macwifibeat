@@ -14,7 +14,7 @@ def collect():
     # Iterate over all modules
     for module in sorted(os.listdir(base_dir)):
 
-        module_fields = path + "/" + module + "/_meta/fields.yml"
+        module_fields = f"{path}/{module}/_meta/fields.yml"
 
         # Only check folders where fields.yml exists
         if os.path.isfile(module_fields) == False:
@@ -26,9 +26,9 @@ def collect():
             fields_yml += tmp
 
         # Iterate over all metricsets
-        for metricset in sorted(os.listdir(base_dir + "/" + module)):
+        for metricset in sorted(os.listdir(f"{base_dir}/{module}")):
 
-            metricset_fields = path + "/" + module + "/" + metricset + "/_meta/fields.yml"
+            metricset_fields = f"{path}/{module}/{metricset}/_meta/fields.yml"
 
             # Only check folders where fields.yml exists
             if os.path.isfile(metricset_fields) == False:
@@ -38,11 +38,7 @@ def collect():
             with open(metricset_fields) as f:
                 # Add 4 spaces for indentation in front of each line
                 for line in f:
-                    if len(line.strip()) > 0:
-                        fields_yml += "    " + "    " + line
-                    else:
-                        fields_yml += line
-
+                    fields_yml += "    " + "    " + line if len(line.strip()) > 0 else line
             # Add newline to make sure indentation is correct
             fields_yml += "\n"
 

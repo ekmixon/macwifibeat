@@ -89,7 +89,7 @@ class Test(metricbeat.BaseTest):
         """
         fields = ["clients", "cpu"]
         eventFields = ['beat', 'metricset']
-        eventFields += ['redis.info.' + f for f in fields]
+        eventFields += [f'redis.info.{f}' for f in fields]
         self.render_config_template(modules=[{
             "name": "redis",
             "metricsets": ["info"],

@@ -12,7 +12,7 @@ class TestKeystore(KeystoreBase):
 
     def setUp(self):
         super(BaseTest, self).setUp()
-        self.keystore_path = self.working_dir + "/data/keystore"
+        self.keystore_path = f"{self.working_dir}/data/keystore"
 
         if path.exists(self.keystore_path):
             os.Remove(self.keystore_path)

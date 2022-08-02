@@ -28,12 +28,16 @@ def get_importable_lines(go_beat_path, import_line):
 
 def collect_monitors(package):
     path = abspath(package)
-    if not isdir(path):
-        return []
-    return [m for m in listdir(path) if is_monitor(package, m)]
+    return (
+        [m for m in listdir(path) if is_monitor(package, m)]
+        if isdir(path)
+        else []
+    )
 
 
 def is_monitor(package, name):
-    return (name != "_meta" and
-            isdir(join(abspath(package), name)) and
-            "{}/{}".format(package, name) not in blacklist)
+    return (
+        name != "_meta"
+        and isdir(join(abspath(package), name))
+        and f"{package}/{name}" not in blacklist
+    )

@@ -39,21 +39,25 @@ class Test(BaseTest):
         """
         self.render_config_template(
             reload=True,
-            reload_path=self.working_dir + "/configs/*.yml",
+            reload_path=f"{self.working_dir}/configs/*.yml",
             reload_type="modules",
             inputs=False,
         )
 
+
         proc = self.start_beat()
 
-        os.mkdir(self.working_dir + "/logs/")
-        logfile = self.working_dir + "/logs/test.log"
-        os.mkdir(self.working_dir + "/configs/")
+        os.mkdir(f"{self.working_dir}/logs/")
+        logfile = f"{self.working_dir}/logs/test.log"
+        os.mkdir(f"{self.working_dir}/configs/")
 
-        with open(self.working_dir + "/configs/system.yml.test", 'w') as f:
-            f.write(moduleConfigTemplate.format(self.working_dir + "/logs/*"))
-        os.rename(self.working_dir + "/configs/system.yml.test",
-                  self.working_dir + "/configs/system.yml")
+        with open(f"{self.working_dir}/configs/system.yml.test", 'w') as f:
+            f.write(moduleConfigTemplate.format(f"{self.working_dir}/logs/*"))
+        os.rename(
+            f"{self.working_dir}/configs/system.yml.test",
+            f"{self.working_dir}/configs/system.yml",
+        )
+
 
         with open(logfile, 'w') as f:
             f.write("Hello world\n")
@@ -69,22 +73,26 @@ class Test(BaseTest):
         """
         self.render_config_template(
             reload=True,
-            reload_path=self.working_dir + "/configs/*.yml",
+            reload_path=f"{self.working_dir}/configs/*.yml",
             reload_type="modules",
             inputs=False,
-            elasticsearch={"host": self.get_elasticsearch_url()}
+            elasticsearch={"host": self.get_elasticsearch_url()},
         )
+
 
         proc = self.start_beat()
 
-        os.mkdir(self.working_dir + "/logs/")
-        logfile = self.working_dir + "/logs/test.log"
-        os.mkdir(self.working_dir + "/configs/")
+        os.mkdir(f"{self.working_dir}/logs/")
+        logfile = f"{self.working_dir}/logs/test.log"
+        os.mkdir(f"{self.working_dir}/configs/")
 
-        with open(self.working_dir + "/configs/system.yml.test", 'w') as f:
-            f.write(moduleConfigTemplate.format(self.working_dir + "/logs/*"))
-        os.rename(self.working_dir + "/configs/system.yml.test",
-                  self.working_dir + "/configs/system.yml")
+        with open(f"{self.working_dir}/configs/system.yml.test", 'w') as f:
+            f.write(moduleConfigTemplate.format(f"{self.working_dir}/logs/*"))
+        os.rename(
+            f"{self.working_dir}/configs/system.yml.test",
+            f"{self.working_dir}/configs/system.yml",
+        )
+
 
         with open(logfile, 'w') as f:
             f.write("Hello world\n")
@@ -100,19 +108,23 @@ class Test(BaseTest):
         """
         self.render_config_template(
             reload=True,
-            reload_path=self.working_dir + "/configs/*.yml",
+            reload_path=f"{self.working_dir}/configs/*.yml",
             reload_type="modules",
             inputs=False,
-            elasticsearch={"host": 'errorhost:9201'}
+            elasticsearch={"host": 'errorhost:9201'},
         )
+
 
         proc = self.start_beat()
 
-        os.mkdir(self.working_dir + "/configs/")
-        with open(self.working_dir + "/configs/system.yml.test", 'w') as f:
-            f.write(moduleConfigTemplate.format(self.working_dir + "/logs/*"))
-        os.rename(self.working_dir + "/configs/system.yml.test",
-                  self.working_dir + "/configs/system.yml")
+        os.mkdir(f"{self.working_dir}/configs/")
+        with open(f"{self.working_dir}/configs/system.yml.test", 'w') as f:
+            f.write(moduleConfigTemplate.format(f"{self.working_dir}/logs/*"))
+        os.rename(
+            f"{self.working_dir}/configs/system.yml.test",
+            f"{self.working_dir}/configs/system.yml",
+        )
+
 
         self.wait_until(lambda: self.log_contains("Error loading pipeline: Error creating Elasticsearch client"))
         proc.check_kill_and_wait(0)
@@ -123,21 +135,25 @@ class Test(BaseTest):
         """
         self.render_config_template(
             reload=True,
-            reload_path=self.working_dir + "/configs/*.yml",
+            reload_path=f"{self.working_dir}/configs/*.yml",
             reload_type="modules",
             inputs=False,
         )
 
+
         proc = self.start_beat()
 
-        os.mkdir(self.working_dir + "/logs/")
-        logfile = self.working_dir + "/logs/test.log"
-        os.mkdir(self.working_dir + "/configs/")
+        os.mkdir(f"{self.working_dir}/logs/")
+        logfile = f"{self.working_dir}/logs/test.log"
+        os.mkdir(f"{self.working_dir}/configs/")
 
-        with open(self.working_dir + "/configs/system.yml.test", 'w') as f:
-            f.write(moduleConfigTemplate.format(self.working_dir + "/logs/*"))
-        os.rename(self.working_dir + "/configs/system.yml.test",
-                  self.working_dir + "/configs/system.yml")
+        with open(f"{self.working_dir}/configs/system.yml.test", 'w') as f:
+            f.write(moduleConfigTemplate.format(f"{self.working_dir}/logs/*"))
+        os.rename(
+            f"{self.working_dir}/configs/system.yml.test",
+            f"{self.working_dir}/configs/system.yml",
+        )
+
 
         with open(logfile, 'w') as f:
             f.write("Hello world\n")
@@ -146,7 +162,7 @@ class Test(BaseTest):
         print(self.output_lines())
 
         # Remove input
-        with open(self.working_dir + "/configs/system.yml", 'w') as f:
+        with open(f"{self.working_dir}/configs/system.yml", 'w') as f:
             f.write("")
 
         # Wait until input is stopped
@@ -168,23 +184,22 @@ class Test(BaseTest):
         Test loading separate module configs
         """
         self.render_config_template(
-            reload_path=self.working_dir + "/configs/*.yml",
+            reload_path=f"{self.working_dir}/configs/*.yml",
             reload_type="modules",
             inputs=False,
         )
 
-        os.mkdir(self.working_dir + "/logs/")
-        os.mkdir(self.working_dir + "/configs/")
-        logfile1 = self.working_dir + "/logs/test1.log"
-        logfile2 = self.working_dir + "/logs/test2.log"
 
-        with open(self.working_dir + "/configs/module1.yml", 'w') as f:
-            f.write(moduleConfigTemplate.format(
-                self.working_dir + "/logs/test1.log"))
+        os.mkdir(f"{self.working_dir}/logs/")
+        os.mkdir(f"{self.working_dir}/configs/")
+        logfile1 = f"{self.working_dir}/logs/test1.log"
+        logfile2 = f"{self.working_dir}/logs/test2.log"
 
-        with open(self.working_dir + "/configs/module2.yml", 'w') as f:
-            f.write(moduleConfigTemplate.format(
-                self.working_dir + "/logs/test2.log"))
+        with open(f"{self.working_dir}/configs/module1.yml", 'w') as f:
+            f.write(moduleConfigTemplate.format(f"{self.working_dir}/logs/test1.log"))
+
+        with open(f"{self.working_dir}/configs/module2.yml", 'w') as f:
+            f.write(moduleConfigTemplate.format(f"{self.working_dir}/logs/test2.log"))
 
         proc = self.start_beat()
 
@@ -217,12 +232,13 @@ class Test(BaseTest):
         """
         self.render_config_template(
             reload=False,
-            reload_path=self.working_dir + "/configs/*.yml",
+            reload_path=f"{self.working_dir}/configs/*.yml",
             inputs=False,
         )
-        os.mkdir(self.working_dir + "/configs/")
 
-        config_path = self.working_dir + "/configs/wrong_module.yml"
+        os.mkdir(f"{self.working_dir}/configs/")
+
+        config_path = f"{self.working_dir}/configs/wrong_module.yml"
         moduleConfig = """
 - module: test
   test:

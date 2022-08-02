@@ -14,9 +14,9 @@ class Test(BaseTest):
         self.run_packetbeat(pcap="mysql_int_string_operations.pcap")
 
         objs = self.read_output()
-        assert all([o["type"] == "mysql" for o in objs])
+        assert all(o["type"] == "mysql" for o in objs)
         assert len(objs) == 157
-        assert all([o["port"] == 13001 for o in objs])
+        assert all(o["port"] == 13001 for o in objs)
 
         assert len([o for o in objs
                     if o["method"] == "SELECT"]) == 134

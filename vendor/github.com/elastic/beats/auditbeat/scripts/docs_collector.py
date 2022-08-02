@@ -22,7 +22,7 @@ This file is generated! See scripts/docs_collector.py
     # Iterate over all modules
     for module in sorted(os.listdir(base_dir)):
 
-        module_doc = path + "/" + module + "/_meta/docs.asciidoc"
+        module_doc = f"{path}/{module}/_meta/docs.asciidoc"
 
         # Only check folders where docs.asciidoc exists
         if os.path.isfile(module_doc) == False:
@@ -37,16 +37,16 @@ This file is generated! See scripts/docs_collector.py
         with open(module_doc) as f:
             module_file += f.read()
 
-        beat_path = path + "/" + module + "/_meta"
+        beat_path = f"{path}/{module}/_meta"
 
         # Load title from fields.yml
-        with open(beat_path + "/fields.yml") as f:
+        with open(f"{beat_path}/fields.yml") as f:
             fields = yaml.load(f.read())
             title = fields[0]["title"]
 
         modules_list[module] = title
 
-        config_file = beat_path + "/config.yml"
+        config_file = f"{beat_path}/config.yml"
 
         # Add example config file
         if os.path.isfile(config_file) == True:
@@ -76,27 +76,31 @@ is an example configuration:
         module_includes = ""
 
         # Iterate over all metricsets
-        for metricset in sorted(os.listdir(base_dir + "/" + module)):
+        for metricset in sorted(os.listdir(f"{base_dir}/{module}")):
 
-            metricset_docs = path + "/" + module + "/" + metricset + "/_meta/docs.asciidoc"
+            metricset_docs = f"{path}/{module}/{metricset}/_meta/docs.asciidoc"
 
             # Only check folders where fields.yml exists
             if os.path.isfile(metricset_docs) == False:
                 continue
 
             link_name = "{beatname_lc}-metricset-" + module + "-" + metricset
-            link = "<<" + link_name + "," + metricset + ">>"
+            link = f"<<{link_name},{metricset}>>"
             reference = "[id=\"" + link_name + "\"]"
 
-            module_links += "* " + link + "\n\n"
+            module_links += f"* {link}" + "\n\n"
 
-            module_includes += "include::" + module + "/" + metricset + ".asciidoc[]\n\n"
+            module_includes += f"include::{module}/{metricset}" + ".asciidoc[]\n\n"
 
             metricset_file = generated_note
 
             # Add reference to metricset file and include file
             metricset_file += reference + "\n"
-            metricset_file += 'include::../../../module/' + module + '/' + metricset + '/_meta/docs.asciidoc[]' + "\n"
+            metricset_file += (
+                f'include::../../../module/{module}/{metricset}/_meta/docs.asciidoc[]'
+                + "\n"
+            )
+
 
             # TODO: This should point directly to the exported fields of the metricset, not the whole module
             metricset_file += """
@@ -108,7 +112,7 @@ For a description of each field in the metricset, see the
 
 """
 
-            data_file = path + "/" + module + "/" + metricset + "/_meta/data.json"
+            data_file = f"{path}/{module}/{metricset}/_meta/data.json"
 
             # Add data.json example json document
             if os.path.isfile(data_file) == True:
@@ -117,7 +121,11 @@ For a description of each field in the metricset, see the
 
                 metricset_file += "[source,json]\n"
                 metricset_file += "----\n"
-                metricset_file += "include::../../../module/" + module + "/" + metricset + "/_meta/data.json[]\n"
+                metricset_file += (
+                    f"include::../../../module/{module}/{metricset}"
+                    + "/_meta/data.json[]\n"
+                )
+
                 metricset_file += "----\n"
 
             # Write metricset docs
@@ -142,7 +150,7 @@ For a description of each field in the metricset, see the
 
     module_list_output += "\n\n--\n\n"
     for m, title in sorted(six.iteritems(modules_list)):
-        module_list_output += "include::modules/" + m + ".asciidoc[]\n"
+        module_list_output += f"include::modules/{m}" + ".asciidoc[]\n"
 
     # Write module link list
     with open(os.path.abspath("docs") + "/modules_list.asciidoc", 'w') as f:

@@ -20,7 +20,7 @@ class TestCommands(BaseTest):
         super(BaseTest, self).setUp()
 
         self.elasticsearch_url = self.get_elasticsearch_url()
-        print("Using elasticsearch: {}".format(self.elasticsearch_url))
+        print(f"Using elasticsearch: {self.elasticsearch_url}")
         self.es = Elasticsearch([self.elasticsearch_url])
         logging.getLogger("urllib3").setLevel(logging.WARNING)
         logging.getLogger("elasticsearch").setLevel(logging.ERROR)
@@ -51,10 +51,16 @@ class TestCommands(BaseTest):
 
         assert len(self.es.cat.templates(name='mockbeat-*', h='name')) == 0
 
-        shutil.copy(self.beat_path + "/_meta/config.yml",
-                    os.path.join(self.working_dir, "libbeat.yml"))
-        shutil.copy(self.beat_path + "/fields.yml",
-                    os.path.join(self.working_dir, "fields.yml"))
+        shutil.copy(
+            f"{self.beat_path}/_meta/config.yml",
+            os.path.join(self.working_dir, "libbeat.yml"),
+        )
+
+        shutil.copy(
+            f"{self.beat_path}/fields.yml",
+            os.path.join(self.working_dir, "fields.yml"),
+        )
+
 
         exit_code = self.run_beat(
             logging_args=["-v", "-d", "*"],
@@ -81,22 +87,41 @@ class TestCommands(BaseTest):
 
         assert len(self.es.cat.templates(name='mockbeat-*', h='name')) == 0
 
-        shutil.copy(self.beat_path + "/_meta/config.yml",
-                    os.path.join(self.working_dir, "libbeat.yml"))
-        shutil.copy(self.beat_path + "/fields.yml",
-                    os.path.join(self.working_dir, "fields.yml"))
+        shutil.copy(
+            f"{self.beat_path}/_meta/config.yml",
+            os.path.join(self.working_dir, "libbeat.yml"),
+        )
+
+        shutil.copy(
+            f"{self.beat_path}/fields.yml",
+            os.path.join(self.working_dir, "fields.yml"),
+        )
+
 
         proc = self.start_beat(
-            extra_args=["--setup",
-                        "--path.config", self.working_dir,
-                        "-E", "setup.dashboards.file=" +
-                        os.path.join(self.beat_path, "tests", "files", "testbeat-dashboards.zip"),
-                        "-E", "setup.dashboards.beat=testbeat",
-                        "-E", "setup.kibana.protocol=http",
-                        "-E", "setup.kibana.host=" + self.get_kibana_host(),
-                        "-E", "setup.kibana.port=" + self.get_kibana_port(),
-                        "-E", "output.elasticsearch.hosts=['" + self.get_host() + "']"],
-            config="libbeat.yml")
+            extra_args=[
+                "--setup",
+                "--path.config",
+                self.working_dir,
+                "-E",
+                "setup.dashboards.file="
+                + os.path.join(
+                    self.beat_path, "tests", "files", "testbeat-dashboards.zip"
+                ),
+                "-E",
+                "setup.dashboards.beat=testbeat",
+                "-E",
+                "setup.kibana.protocol=http",
+                "-E",
+                f"setup.kibana.host={self.get_kibana_host()}",
+                "-E",
+                f"setup.kibana.port={self.get_kibana_port()}",
+                "-E",
+                "output.elasticsearch.hosts=['" + self.get_host() + "']",
+            ],
+            config="libbeat.yml",
+        )
+
 
         self.wait_until(lambda: self.es.cat.templates(name='mockbeat-*', h='name') > 0)
         self.wait_until(lambda: self.log_contains("Kibana dashboards successfully loaded"))
@@ -157,8 +182,11 @@ class TestCommands(BaseTest):
                                     os.path.join(self.working_dir,
                                                  "mockbeat.yml"),
                                     fields=os.path.join(self.working_dir, "fields.yml"))
-        shutil.copy(self.beat_path + "/fields.yml",
-                    os.path.join(self.working_dir, "fields.yml"))
+        shutil.copy(
+            f"{self.beat_path}/fields.yml",
+            os.path.join(self.working_dir, "fields.yml"),
+        )
+
         exit_code = self.run_beat(
             logging_args=[],
             extra_args=["export", "template"],
@@ -174,10 +202,12 @@ class TestCommands(BaseTest):
         """
         Test test output works
         """
-        self.render_config_template("mockbeat",
-                                    os.path.join(self.working_dir,
-                                                 "mockbeat.yml"),
-                                    elasticsearch={"hosts": '["{}"]'.format(self.get_host())})
+        self.render_config_template(
+            "mockbeat",
+            os.path.join(self.working_dir, "mockbeat.yml"),
+            elasticsearch={"hosts": f'["{self.get_host()}"]'},
+        )
+
         exit_code = self.run_beat(
             extra_args=["test", "output"],
             config="mockbeat.yml")

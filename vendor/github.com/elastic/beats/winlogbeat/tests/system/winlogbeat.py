@@ -18,10 +18,13 @@ from beat.beat import TestCase
 class BaseTest(TestCase):
 
     @classmethod
-    def setUpClass(self):
-        self.beat_name = "winlogbeat"
-        self.beat_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
-        super(BaseTest, self).setUpClass()
+    def setUpClass(cls):
+        cls.beat_name = "winlogbeat"
+        cls.beat_path = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "../../")
+        )
+
+        super(BaseTest, cls).setUpClass()
 
 
 class WriteReadTest(BaseTest):
@@ -56,18 +59,18 @@ class WriteReadTest(BaseTest):
 
     def write_event_log(self, message, eventID=10, sid=None,
                         level=None, source=None):
-        if sid == None:
+        if sid is None:
             sid = self.get_sid()
-        if source == None:
+        if source is None:
             source = self.applicationName
-        if level == None:
+        if level is None:
             level = win32evtlog.EVENTLOG_INFORMATION_TYPE
 
         win32evtlogutil.ReportEvent(source, eventID,
                                     eventType=level, strings=[message], sid=sid)
 
     def get_sid(self):
-        if self.sid == None:
+        if self.sid is None:
             ph = win32api.GetCurrentProcess()
             th = win32security.OpenProcessToken(ph, win32con.TOKEN_READ)
             self.sid = win32security.GetTokenInformation(
@@ -76,13 +79,13 @@ class WriteReadTest(BaseTest):
         return self.sid
 
     def get_sid_string(self):
-        if self.sidString == None:
+        if self.sidString is None:
             self.sidString = win32security.ConvertSidToStringSid(self.get_sid())
 
         return self.sidString
 
     def read_events(self, config=None, expected_events=1):
-        if config == None:
+        if config is None:
             config = {
                 "event_logs": [
                     {"name": self.providerName, "api": self.api}
@@ -126,13 +129,13 @@ class WriteReadTest(BaseTest):
             "type": self.api,
         }, evt)
 
-        if msg == None:
+        if msg is None:
             assert "message" not in evt
         else:
             self.assertEquals(evt["message"], msg)
             self.assertDictContainsSubset({"event_data.param1": msg}, evt)
 
-        if sid == None:
+        if sid is None:
             self.assertEquals(evt["user.identifier"], self.get_sid_string())
             self.assertEquals(evt["user.name"].lower(),
                               win32api.GetUserName().lower())

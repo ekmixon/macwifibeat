@@ -8,21 +8,25 @@ def escape_path(path):
 
 
 def has_file(objs, path, sha1hash):
-    found = False
-    for obj in objs:
-        if 'file.path' in obj and 'hash.sha1' in obj \
-                and obj['file.path'].lower() == path.lower() and obj['hash.sha1'] == sha1hash:
-            found = True
-            break
+    found = any(
+        'file.path' in obj
+        and 'hash.sha1' in obj
+        and obj['file.path'].lower() == path.lower()
+        and obj['hash.sha1'] == sha1hash
+        for obj in objs
+    )
+
     assert found, "File '{0}' with sha1sum '{1}' not found".format(path, sha1hash)
 
 
 def has_dir(objs, path):
-    found = False
-    for obj in objs:
-        if 'file.path' in obj and obj['file.path'].lower() == path.lower() and obj['file.type'] == "dir":
-            found = True
-            break
+    found = any(
+        'file.path' in obj
+        and obj['file.path'].lower() == path.lower()
+        and obj['file.type'] == "dir"
+        for obj in objs
+    )
+
     assert found, "Dir '{0}' not found".format(path)
 
 

@@ -43,8 +43,11 @@ def read_input():
     beat = project_name.lower()
 
     if beat_path == "":
-        beat_path = raw_input("Beat Path [github.com/" + github_name + "/" + beat +
-                              "]: ") or "github.com/" + github_name + "/" + beat
+        beat_path = (
+            raw_input((f"Beat Path [github.com/{github_name}/{beat}" + "]: "))
+            or f"github.com/{github_name}/{beat}"
+        )
+
 
     if full_name == "":
         full_name = raw_input("Firstname Lastname: ") or "Firstname Lastname"
@@ -53,14 +56,14 @@ def read_input():
 def process_file(beat_type):
 
     # Load path information
-    template_path = os.path.dirname(os.path.realpath(__file__)) + '/../generator'
+    template_path = f'{os.path.dirname(os.path.realpath(__file__))}/../generator'
     go_path = os.environ['GOPATH']
 
-    for root, dirs, files in os.walk(template_path + '/' + beat_type + '/{beat}'):
+    for root, dirs, files in os.walk(f'{template_path}/{beat_type}' + '/{beat}'):
 
         for file in files:
 
-            full_path = root + "/" + file
+            full_path = f"{root}/{file}"
 
             # load file
             content = ""
@@ -74,10 +77,10 @@ def process_file(beat_type):
             new_path = replace_variables(full_path).replace(".go.tmpl", ".go")
 
             # remove generator info and beat name from path
-            file_path = new_path.replace(template_path + "/" + beat_type + "/" + beat, "")
+            file_path = new_path.replace(f"{template_path}/{beat_type}/{beat}", "")
 
             # New file path to write file content to
-            write_file = go_path + "/src/" + beat_path + "/" + file_path
+            write_file = f"{go_path}/src/{beat_path}/{file_path}"
 
             # Create parent directory if it does not exist yet
             dir = os.path.dirname(write_file)

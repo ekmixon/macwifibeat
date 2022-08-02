@@ -36,14 +36,14 @@ class Test(BaseTest):
         self.run_and_validate()
 
     def apply_registry_template(self, template, testfile, file_state):
-        source = self.beat_path + "/tests/files/registry/" + template
+        source = f"{self.beat_path}/tests/files/registry/{template}"
         with open(source) as f:
             registry = json.loads(f.read())
 
         for state in registry:
             state["source"] = testfile
             state["FileStateOS"] = file_state
-        with open(self.working_dir + "/registry", 'w') as f:
+        with open(f"{self.working_dir}/registry", 'w') as f:
             f.write(json.dumps(registry))
 
     def prepare_log(self):
@@ -52,13 +52,11 @@ class Test(BaseTest):
         if os.name == "nt":
             raise SkipTest
 
-        self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/log/*"
-        )
+        self.render_config_template(path=f"{os.path.abspath(self.working_dir)}/log/*")
 
-        os.mkdir(self.working_dir + "/log/")
+        os.mkdir(f"{self.working_dir}/log/")
 
-        testfile_path = self.working_dir + "/log/test.log"
+        testfile_path = f"{self.working_dir}/log/test.log"
         with open(testfile_path, 'w') as f:
             f.write("123456789\n")
             f.write("abcdefghi\n")

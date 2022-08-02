@@ -64,7 +64,7 @@ class Test(BaseTest):
         # all transactions succeed
         assert all(o['status'] == 'OK' for o in objs)
 
-        sets = dict([(o['memcache.request.keys'][0], o) for o in objs[0:3]])
+        sets = dict([(o['memcache.request.keys'][0], o) for o in objs[:3]])
         assert sorted(sets.keys()) == ['k1', 'k2', 'k3']
         assert sets['k1']['memcache.request.bytes'] == 100
         assert sets['k2']['memcache.request.bytes'] == 20

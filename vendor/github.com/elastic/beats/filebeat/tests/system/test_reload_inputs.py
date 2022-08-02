@@ -19,18 +19,19 @@ class Test(BaseTest):
         """
         self.render_config_template(
             reload=True,
-            reload_path=self.working_dir + "/configs/*.yml",
+            reload_path=f"{self.working_dir}/configs/*.yml",
             inputs=False,
         )
 
+
         proc = self.start_beat()
 
-        os.mkdir(self.working_dir + "/logs/")
-        logfile = self.working_dir + "/logs/test.log"
-        os.mkdir(self.working_dir + "/configs/")
+        os.mkdir(f"{self.working_dir}/logs/")
+        logfile = f"{self.working_dir}/logs/test.log"
+        os.mkdir(f"{self.working_dir}/configs/")
 
-        with open(self.working_dir + "/configs/input.yml", 'w') as f:
-            f.write(inputConfigTemplate.format(self.working_dir + "/logs/*"))
+        with open(f"{self.working_dir}/configs/input.yml", 'w') as f:
+            f.write(inputConfigTemplate.format(f"{self.working_dir}/logs/*"))
 
         with open(logfile, 'w') as f:
             f.write("Hello world\n")
@@ -44,18 +45,19 @@ class Test(BaseTest):
         """
         self.render_config_template(
             reload=True,
-            reload_path=self.working_dir + "/configs/*.yml",
+            reload_path=f"{self.working_dir}/configs/*.yml",
             inputs=False,
         )
 
+
         proc = self.start_beat()
 
-        os.mkdir(self.working_dir + "/logs/")
-        logfile = self.working_dir + "/logs/test.log"
-        os.mkdir(self.working_dir + "/configs/")
+        os.mkdir(f"{self.working_dir}/logs/")
+        logfile = f"{self.working_dir}/logs/test.log"
+        os.mkdir(f"{self.working_dir}/configs/")
 
-        with open(self.working_dir + "/configs/input.yml", 'w') as f:
-            f.write(inputConfigTemplate.format(self.working_dir + "/logs/*"))
+        with open(f"{self.working_dir}/configs/input.yml", 'w') as f:
+            f.write(inputConfigTemplate.format(f"{self.working_dir}/logs/*"))
 
         with open(logfile, 'w') as f:
             f.write("Hello world\n")
@@ -63,7 +65,7 @@ class Test(BaseTest):
         self.wait_until(lambda: self.output_lines() == 1)
 
         # Remove input
-        with open(self.working_dir + "/configs/input.yml", 'w') as f:
+        with open(f"{self.working_dir}/configs/input.yml", 'w') as f:
             f.write("")
 
         # Wait until input is stopped
@@ -87,21 +89,22 @@ class Test(BaseTest):
         """
         self.render_config_template(
             reload=True,
-            reload_path=self.working_dir + "/configs/*.yml",
+            reload_path=f"{self.working_dir}/configs/*.yml",
             inputs=False,
         )
 
+
         proc = self.start_beat()
 
-        os.mkdir(self.working_dir + "/logs/")
-        logfile1 = self.working_dir + "/logs/test1.log"
-        logfile2 = self.working_dir + "/logs/test2.log"
-        os.mkdir(self.working_dir + "/configs/")
+        os.mkdir(f"{self.working_dir}/logs/")
+        logfile1 = f"{self.working_dir}/logs/test1.log"
+        logfile2 = f"{self.working_dir}/logs/test2.log"
+        os.mkdir(f"{self.working_dir}/configs/")
         first_line = "First log file"
         second_line = "Second log file"
 
-        with open(self.working_dir + "/configs/input.yml", 'w') as f:
-            f.write(inputConfigTemplate.format(self.working_dir + "/logs/test1.log"))
+        with open(f"{self.working_dir}/configs/input.yml", 'w') as f:
+            f.write(inputConfigTemplate.format(f"{self.working_dir}/logs/test1.log"))
 
         with open(logfile1, 'w') as f:
             f.write(first_line + "\n")
@@ -109,7 +112,7 @@ class Test(BaseTest):
         self.wait_until(lambda: self.output_lines() == 1)
 
         # Remove input
-        with open(self.working_dir + "/configs/input.yml", 'w') as f:
+        with open(f"{self.working_dir}/configs/input.yml", 'w') as f:
             f.write("")
 
         # Wait until input is stopped
@@ -117,8 +120,8 @@ class Test(BaseTest):
             lambda: self.log_contains("Stopping runner:"),
             max_timeout=15)
 
-        with open(self.working_dir + "/configs/input.yml", 'w') as f:
-            f.write(inputConfigTemplate.format(self.working_dir + "/logs/test2.log"))
+        with open(f"{self.working_dir}/configs/input.yml", 'w') as f:
+            f.write(inputConfigTemplate.format(f"{self.working_dir}/logs/test2.log"))
 
         # Update both log files, only 1 change should be picked up
         with open(logfile1, 'a') as f:
@@ -143,23 +146,24 @@ class Test(BaseTest):
         """
         self.render_config_template(
             reload=True,
-            reload_path=self.working_dir + "/configs/*.yml",
+            reload_path=f"{self.working_dir}/configs/*.yml",
             inputs=False,
         )
 
+
         proc = self.start_beat()
 
-        os.mkdir(self.working_dir + "/logs/")
-        logfile = self.working_dir + "/logs/test.log"
-        os.mkdir(self.working_dir + "/configs/")
+        os.mkdir(f"{self.working_dir}/logs/")
+        logfile = f"{self.working_dir}/logs/test.log"
+        os.mkdir(f"{self.working_dir}/configs/")
         first_line = "First log file"
         second_line = "Second log file"
 
-        config = inputConfigTemplate.format(self.working_dir + "/logs/test.log")
+        config = inputConfigTemplate.format(f"{self.working_dir}/logs/test.log")
         config = config + """
   close_eof: true
 """
-        with open(self.working_dir + "/configs/input.yml", 'w') as f:
+        with open(f"{self.working_dir}/configs/input.yml", 'w') as f:
             f.write(config)
 
         with open(logfile, 'w') as f:
@@ -168,7 +172,7 @@ class Test(BaseTest):
         self.wait_until(lambda: self.output_lines() == 1)
 
         # Overwrite input with same path but new fields
-        with open(self.working_dir + "/configs/input.yml", 'w') as f:
+        with open(f"{self.working_dir}/configs/input.yml", 'w') as f:
             config = config + """
   fields:
     hello: world
@@ -194,7 +198,7 @@ class Test(BaseTest):
         assert self.output_lines() == 2
         assert output[0]["message"] == first_line
         # Check no fields exist
-        assert ("fields" in output[0]) == False
+        assert "fields" not in output[0]
         assert output[1]["message"] == second_line
         # assert that fields are added
         assert output[1]["fields.hello"] == "world"
@@ -204,22 +208,22 @@ class Test(BaseTest):
         Test loading separate inputs configs
         """
         self.render_config_template(
-            reload_path=self.working_dir + "/configs/*.yml",
-            inputs=False,
+            reload_path=f"{self.working_dir}/configs/*.yml", inputs=False
         )
 
-        os.mkdir(self.working_dir + "/logs/")
-        logfile = self.working_dir + "/logs/test.log"
-        os.mkdir(self.working_dir + "/configs/")
+
+        os.mkdir(f"{self.working_dir}/logs/")
+        logfile = f"{self.working_dir}/logs/test.log"
+        os.mkdir(f"{self.working_dir}/configs/")
 
         first_line = "First log file"
         second_line = "Second log file"
 
-        config = inputConfigTemplate.format(self.working_dir + "/logs/test.log")
+        config = inputConfigTemplate.format(f"{self.working_dir}/logs/test.log")
         config = config + """
   close_eof: true
 """
-        with open(self.working_dir + "/configs/input.yml", 'w') as f:
+        with open(f"{self.working_dir}/configs/input.yml", 'w') as f:
             f.write(config)
 
         with open(logfile, 'w') as f:
@@ -255,16 +259,17 @@ class Test(BaseTest):
         """
         self.render_config_template(
             reload=True,
-            reload_path=self.working_dir + "/configs/*.yml",
+            reload_path=f"{self.working_dir}/configs/*.yml",
             inputs=False,
         )
 
-        os.mkdir(self.working_dir + "/logs/")
-        logfile = self.working_dir + "/logs/test.log"
-        os.mkdir(self.working_dir + "/configs/")
 
-        with open(self.working_dir + "/configs/input.yml", 'w') as f:
-            f.write(inputConfigTemplate.format(self.working_dir + "/logs/*"))
+        os.mkdir(f"{self.working_dir}/logs/")
+        logfile = f"{self.working_dir}/logs/test.log"
+        os.mkdir(f"{self.working_dir}/configs/")
+
+        with open(f"{self.working_dir}/configs/input.yml", 'w') as f:
+            f.write(inputConfigTemplate.format(f"{self.working_dir}/logs/*"))
 
         proc = self.start_beat()
 
@@ -275,8 +280,8 @@ class Test(BaseTest):
 
         # New config with same config file but a bit different to make it reload
         # Add it intentionally when other input is still running to cause an error
-        with open(self.working_dir + "/configs/input.yml", 'w') as f:
-            f.write(inputConfigTemplate.format(self.working_dir + "/logs/test.log"))
+        with open(f"{self.working_dir}/configs/input.yml", 'w') as f:
+            f.write(inputConfigTemplate.format(f"{self.working_dir}/logs/test.log"))
 
         # Make sure error shows up in log file
         self.wait_until(
@@ -302,17 +307,18 @@ class Test(BaseTest):
         """
         self.render_config_template(
             reload=True,
-            reload_path=self.working_dir + "/configs/*.yml",
+            reload_path=f"{self.working_dir}/configs/*.yml",
             inputs=False,
         )
 
-        os.mkdir(self.working_dir + "/logs/")
-        logfile1 = self.working_dir + "/logs/test1.log"
-        logfile2 = self.working_dir + "/logs/test2.log"
-        os.mkdir(self.working_dir + "/configs/")
 
-        with open(self.working_dir + "/configs/input.yml", 'w') as f:
-            f.write(inputConfigTemplate.format(self.working_dir + "/logs/test1.log"))
+        os.mkdir(f"{self.working_dir}/logs/")
+        logfile1 = f"{self.working_dir}/logs/test1.log"
+        logfile2 = f"{self.working_dir}/logs/test2.log"
+        os.mkdir(f"{self.working_dir}/configs/")
+
+        with open(f"{self.working_dir}/configs/input.yml", 'w') as f:
+            f.write(inputConfigTemplate.format(f"{self.working_dir}/logs/test1.log"))
 
         proc = self.start_beat()
 
@@ -321,8 +327,8 @@ class Test(BaseTest):
 
         self.wait_until(lambda: self.output_lines() > 0)
 
-        with open(self.working_dir + "/configs/input2.yml", 'w') as f:
-            f.write(inputConfigTemplate.format(self.working_dir + "/logs/test2.log"))
+        with open(f"{self.working_dir}/configs/input2.yml", 'w') as f:
+            f.write(inputConfigTemplate.format(f"{self.working_dir}/logs/test2.log"))
 
         self.wait_until(
             lambda: self.log_contains_count("Starting runner:") == 2,

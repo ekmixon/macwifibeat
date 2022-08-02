@@ -11,9 +11,9 @@ class Test(BaseTest):
                             debug_selectors=["mysql,tcp,publish"])
 
         objs = self.read_output()
-        assert all([o["type"] == "mysql" for o in objs])
+        assert all(o["type"] == "mysql" for o in objs)
         assert len(objs) == 7
-        assert all([o["port"] == 3306 for o in objs])
+        assert all(o["port"] == 3306 for o in objs)
 
         assert objs[0]["method"] == "SET"
         assert objs[0]["path"] == ""
@@ -32,5 +32,5 @@ class Test(BaseTest):
         assert objs[5]["status"] == "OK"
         assert objs[5]["bytes_out"] == 118
 
-        assert all(["bytes_in" in o.keys() for o in objs])
-        assert all(["bytes_out" in o.keys() for o in objs])
+        assert all("bytes_in" in o.keys() for o in objs)
+        assert all("bytes_out" in o.keys() for o in objs)

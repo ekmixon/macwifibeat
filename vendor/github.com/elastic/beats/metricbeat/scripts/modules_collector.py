@@ -23,7 +23,7 @@ def collect(docs_branch):
     # Iterate over all modules
     for module in sorted(os.listdir(base_dir)):
 
-        module_conf = path + '/' + module + '/_meta/config.yml'
+        module_conf = f'{path}/{module}/_meta/config.yml'
         if os.path.isfile(module_conf) == False:
             continue
 

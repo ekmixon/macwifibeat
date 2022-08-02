@@ -14,6 +14,6 @@ class Test(BaseTest):
         objs = self.read_output()
 
         assert len(objs) == 17
-        assert all([o["type"] == "thrift" for o in objs])
-        assert all([o["client_ip"] == "::1" for o in objs])
-        assert all([o["ip"] == "::1" for o in objs])
+        assert all(o["type"] == "thrift" for o in objs)
+        assert all(o["client_ip"] == "::1" for o in objs)
+        assert all(o["ip"] == "::1" for o in objs)

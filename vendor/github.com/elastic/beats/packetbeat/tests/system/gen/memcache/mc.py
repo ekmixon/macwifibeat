@@ -28,10 +28,7 @@ def connect_udp(opts=None):
 
 
 def connect(opts):
-    if opts.transport == 'udp':
-        addr = 'udp:' + opts.remote
-    else:
-        addr = opts.remote
+    addr = f'udp:{opts.remote}' if opts.transport == 'udp' else opts.remote
     return pylibmc.Client([addr],
                           binary=opts.protocol == 'bin')
 

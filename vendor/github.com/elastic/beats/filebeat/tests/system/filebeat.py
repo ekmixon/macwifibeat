@@ -10,15 +10,18 @@ from beat.beat import TestCase
 class BaseTest(TestCase):
 
     @classmethod
-    def setUpClass(self):
-        self.beat_name = "filebeat"
-        self.beat_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
+    def setUpClass(cls):
+        cls.beat_name = "filebeat"
+        cls.beat_path = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "../../")
+        )
 
-        super(BaseTest, self).setUpClass()
+
+        super(BaseTest, cls).setUpClass()
 
     def get_registry(self):
         # Returns content of the registry file
-        dotFilebeat = self.working_dir + '/registry'
+        dotFilebeat = f'{self.working_dir}/registry'
         self.wait_until(cond=lambda: os.path.isfile(dotFilebeat))
 
         with open(dotFilebeat) as file:
@@ -37,11 +40,11 @@ class BaseTest(TestCase):
 
         # Checks all entries and returns the most recent one
         for entry in registry:
-            if entry["source"] == path:
-                if tmp_entry == None:
-                    tmp_entry = entry
-                else:
-                    if tmp_entry["timestamp"] < entry["timestamp"]:
-                        tmp_entry = entry
+            if entry["source"] == path and (
+                tmp_entry != None
+                and tmp_entry["timestamp"] < entry["timestamp"]
+                or tmp_entry is None
+            ):
+                tmp_entry = entry
 
         return tmp_entry

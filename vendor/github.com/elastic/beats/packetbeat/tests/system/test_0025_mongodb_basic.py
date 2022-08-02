@@ -151,7 +151,7 @@ class Test(BaseTest):
         assert "request" in o
         assert "response" in o
         # limit lines to 10 chars, but add dots at the end
-        assert all([len(l) < 15 for l in o["response"].splitlines()])
+        assert all(len(l) < 15 for l in o["response"].splitlines())
 
     def test_mongodb_inserts(self):
         """

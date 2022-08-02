@@ -7,7 +7,7 @@ import yaml
 
 def collect(beat_name, beat_path, full=False):
 
-    base_dir = beat_path + "/module"
+    base_dir = f"{beat_path}/module"
     path = os.path.abspath(base_dir)
 
     # yml file
@@ -19,23 +19,23 @@ def collect(beat_name, beat_path, full=False):
 
     # Read the modules list but put "system" first
     modules = ["system"]
-    for module in sorted(os.listdir(base_dir)):
-        if module != "system":
-            modules.append(module)
+    modules.extend(
+        module for module in sorted(os.listdir(base_dir)) if module != "system"
+    )
 
     # Iterate over all modules
     for module in modules:
 
-        beat_path = path + "/" + module + "/_meta"
+        beat_path = f"{path}/{module}/_meta"
 
-        module_configs = beat_path + "/config.yml"
+        module_configs = f"{beat_path}/config.yml"
 
         # By default, short config is read if short is set
         short_config = False
 
         # Check if full config exists
         if full:
-            full_module_config = beat_path + "/config.reference.yml"
+            full_module_config = f"{beat_path}/config.reference.yml"
             if os.path.isfile(full_module_config):
                 module_configs = full_module_config
 
@@ -44,7 +44,7 @@ def collect(beat_name, beat_path, full=False):
             continue
 
         # Load title from fields.yml
-        with open(beat_path + "/fields.yml") as f:
+        with open(f"{beat_path}/fields.yml") as f:
             fields = yaml.load(f.read())
             title = fields[0]["title"]
 
@@ -73,10 +73,10 @@ def get_title_line(title):
 
     line = "#"
     line += "-" * dashes
-    line += " " + title + " Module "
+    line += f" {title} Module "
     line += "-" * dashes
 
-    return line[0:78] + "\n"
+    return line[:78] + "\n"
 
 
 if __name__ == "__main__":

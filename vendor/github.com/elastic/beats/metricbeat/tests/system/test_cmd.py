@@ -13,14 +13,14 @@ class TestCommands(metricbeat.BaseTest):
 
         # Enable modules reload with default paths
         self.render_config_template(reload=True)
-        os.mkdir(self.working_dir + "/modules.d")
+        os.mkdir(f"{self.working_dir}/modules.d")
 
     def test_modules_list(self):
         """
         Test modules list command
         """
-        self.touch(self.working_dir + "/modules.d/enabled.yml")
-        self.touch(self.working_dir + "/modules.d/disabled.yml.disabled")
+        self.touch(f"{self.working_dir}/modules.d/enabled.yml")
+        self.touch(f"{self.working_dir}/modules.d/disabled.yml.disabled")
 
         exit_code = self.run_beat(logging_args=None,
                                   extra_args=["modules", "list"])
@@ -30,7 +30,7 @@ class TestCommands(metricbeat.BaseTest):
         assert "Disabled:\ndisabled" in self.get_log()
 
         # Add one more disabled module
-        self.touch(self.working_dir + "/modules.d/disabled2.yml.disabled")
+        self.touch(f"{self.working_dir}/modules.d/disabled2.yml.disabled")
         exit_code = self.run_beat(logging_args=None,
                                   extra_args=["modules", "list"])
 
@@ -42,10 +42,10 @@ class TestCommands(metricbeat.BaseTest):
         """
         Test modules enable command
         """
-        self.touch(self.working_dir + "/modules.d/enabled.yml")
-        self.touch(self.working_dir + "/modules.d/disabled1.yml.disabled")
-        self.touch(self.working_dir + "/modules.d/disabled2.yml.disabled")
-        self.touch(self.working_dir + "/modules.d/disabled3.yml.disabled")
+        self.touch(f"{self.working_dir}/modules.d/enabled.yml")
+        self.touch(f"{self.working_dir}/modules.d/disabled1.yml.disabled")
+        self.touch(f"{self.working_dir}/modules.d/disabled2.yml.disabled")
+        self.touch(f"{self.working_dir}/modules.d/disabled3.yml.disabled")
 
         # Enable one module
         exit_code = self.run_beat(
@@ -53,13 +53,13 @@ class TestCommands(metricbeat.BaseTest):
         assert exit_code == 0
 
         assert self.log_contains("Enabled disabled1")
-        assert os.path.exists(self.working_dir + "/modules.d/disabled1.yml")
+        assert os.path.exists(f"{self.working_dir}/modules.d/disabled1.yml")
         assert not os.path.exists(
-            self.working_dir + "/modules.d/disabled1.yml.disabled")
-        assert os.path.exists(
-            self.working_dir + "/modules.d/disabled2.yml.disabled")
-        assert os.path.exists(
-            self.working_dir + "/modules.d/disabled3.yml.disabled")
+            f"{self.working_dir}/modules.d/disabled1.yml.disabled"
+        )
+
+        assert os.path.exists(f"{self.working_dir}/modules.d/disabled2.yml.disabled")
+        assert os.path.exists(f"{self.working_dir}/modules.d/disabled3.yml.disabled")
 
         # Enable several modules at once:
         exit_code = self.run_beat(
@@ -68,21 +68,24 @@ class TestCommands(metricbeat.BaseTest):
 
         assert self.log_contains("Enabled disabled2")
         assert self.log_contains("Enabled disabled3")
-        assert os.path.exists(self.working_dir + "/modules.d/disabled2.yml")
-        assert os.path.exists(self.working_dir + "/modules.d/disabled3.yml")
+        assert os.path.exists(f"{self.working_dir}/modules.d/disabled2.yml")
+        assert os.path.exists(f"{self.working_dir}/modules.d/disabled3.yml")
         assert not os.path.exists(
-            self.working_dir + "/modules.d/disabled2.yml.disabled")
+            f"{self.working_dir}/modules.d/disabled2.yml.disabled"
+        )
+
         assert not os.path.exists(
-            self.working_dir + "/modules.d/disabled3.yml.disabled")
+            f"{self.working_dir}/modules.d/disabled3.yml.disabled"
+        )
 
     def test_modules_disable(self):
         """
         Test modules disable command
         """
-        self.touch(self.working_dir + "/modules.d/enabled1.yml")
-        self.touch(self.working_dir + "/modules.d/enabled2.yml")
-        self.touch(self.working_dir + "/modules.d/enabled3.yml")
-        self.touch(self.working_dir + "/modules.d/disabled2.yml.disabled")
+        self.touch(f"{self.working_dir}/modules.d/enabled1.yml")
+        self.touch(f"{self.working_dir}/modules.d/enabled2.yml")
+        self.touch(f"{self.working_dir}/modules.d/enabled3.yml")
+        self.touch(f"{self.working_dir}/modules.d/disabled2.yml.disabled")
 
         # Disable one module
         exit_code = self.run_beat(
@@ -90,11 +93,10 @@ class TestCommands(metricbeat.BaseTest):
         assert exit_code == 0
 
         assert self.log_contains("Disabled enabled1")
-        assert os.path.exists(
-            self.working_dir + "/modules.d/enabled1.yml.disabled")
-        assert not os.path.exists(self.working_dir + "/modules.d/enabled1.yml")
-        assert os.path.exists(self.working_dir + "/modules.d/enabled2.yml")
-        assert os.path.exists(self.working_dir + "/modules.d/enabled3.yml")
+        assert os.path.exists(f"{self.working_dir}/modules.d/enabled1.yml.disabled")
+        assert not os.path.exists(f"{self.working_dir}/modules.d/enabled1.yml")
+        assert os.path.exists(f"{self.working_dir}/modules.d/enabled2.yml")
+        assert os.path.exists(f"{self.working_dir}/modules.d/enabled3.yml")
 
         # Disable several modules at once:
         exit_code = self.run_beat(
@@ -103,12 +105,10 @@ class TestCommands(metricbeat.BaseTest):
 
         assert self.log_contains("Disabled enabled2")
         assert self.log_contains("Disabled enabled3")
-        assert os.path.exists(
-            self.working_dir + "/modules.d/enabled2.yml.disabled")
-        assert os.path.exists(
-            self.working_dir + "/modules.d/enabled3.yml.disabled")
-        assert not os.path.exists(self.working_dir + "/modules.d/enabled2.yml")
-        assert not os.path.exists(self.working_dir + "/modules.d/enabled3.yml")
+        assert os.path.exists(f"{self.working_dir}/modules.d/enabled2.yml.disabled")
+        assert os.path.exists(f"{self.working_dir}/modules.d/enabled3.yml.disabled")
+        assert not os.path.exists(f"{self.working_dir}/modules.d/enabled2.yml")
+        assert not os.path.exists(f"{self.working_dir}/modules.d/enabled3.yml")
 
     def test_modules_test(self):
         """
@@ -172,7 +172,7 @@ class TestCommands(metricbeat.BaseTest):
         open(path, 'a').close()
 
     def write_system_yml(self):
-        with open(self.working_dir + "/modules.d/system.yml", "wb") as f:
+        with open(f"{self.working_dir}/modules.d/system.yml", "wb") as f:
             f.write("""
 - module: system
   period: 10s
@@ -181,7 +181,7 @@ class TestCommands(metricbeat.BaseTest):
     - memory""")
 
     def write_nginx_yml(self):
-        with open(self.working_dir + "/modules.d/nginx.yml", "wb") as f:
+        with open(f"{self.working_dir}/modules.d/nginx.yml", "wb") as f:
             f.write("""
 - module: nginx
   period: 10s

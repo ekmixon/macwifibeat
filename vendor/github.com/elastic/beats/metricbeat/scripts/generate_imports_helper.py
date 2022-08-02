@@ -20,7 +20,7 @@ def get_importable_lines(go_beat_path, import_line):
         ignore = ["_meta", "vendor", "mtest"]
         metricsets = [m for m in listdir(module_path) if isdir(join(module_path, m)) and m not in ignore]
         for metricset in metricsets:
-            metricset_name = "{}/{}".format(module, metricset)
+            metricset_name = f"{module}/{metricset}"
             metricset_import = import_line.format(beat_path=go_beat_path, module="module", name=metricset_name)
             imported_lines.append(metricset_import)
 

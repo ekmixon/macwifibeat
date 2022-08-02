@@ -56,8 +56,12 @@ class Test(metricbeat.BaseTest):
         }])
         proc = self.start_beat()
         self.wait_until(lambda: self.log_contains("Starting http server on "))
-        requests.post("http://" + host + ":" + str(port),
-                      json={'hello': 'world'}, headers={'Content-Type': 'application/json'})
+        requests.post(
+            f"http://{host}:{port}",
+            json={'hello': 'world'},
+            headers={'Content-Type': 'application/json'},
+        )
+
         self.wait_until(lambda: self.output_lines() > 0)
         proc.check_kill_and_wait()
         self.assert_no_logged_warnings()

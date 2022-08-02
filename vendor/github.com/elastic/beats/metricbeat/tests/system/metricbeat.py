@@ -18,10 +18,13 @@ logging.getLogger("urllib3").setLevel(logging.WARNING)
 class BaseTest(TestCase):
 
     @classmethod
-    def setUpClass(self):
-        self.beat_name = "metricbeat"
-        self.beat_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
-        super(BaseTest, self).setUpClass()
+    def setUpClass(cls):
+        cls.beat_name = "metricbeat"
+        cls.beat_path = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "../../")
+        )
+
+        super(BaseTest, cls).setUpClass()
 
     def de_dot(self, existing_fields):
         fields = {}

@@ -18,10 +18,13 @@ FLOWS_REQUIRED_FIELDS = ["@timestamp", "type",
 class BaseTest(TestCase):
 
     @classmethod
-    def setUpClass(self):
-        self.beat_name = "packetbeat"
-        self.beat_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
-        super(BaseTest, self).setUpClass()
+    def setUpClass(cls):
+        cls.beat_name = "packetbeat"
+        cls.beat_path = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "../../")
+        )
+
+        super(BaseTest, cls).setUpClass()
 
     def run_packetbeat(self, pcap,
                        cmd=None,
@@ -38,20 +41,26 @@ class BaseTest(TestCase):
         """
 
         if cmd is None:
-            cmd = self.beat_path + "/packetbeat.test"
+            cmd = f"{self.beat_path}/packetbeat.test"
 
         args = [cmd]
 
         if not real_time:
             args.extend(["-t"])
 
-        args.extend([
-            "-e",
-            "-I", os.path.join(self.beat_path + "/tests/system/pcaps", pcap),
-            "-c", os.path.join(self.working_dir, config),
-            "-systemTest",
-            "-test.coverprofile", os.path.join(self.working_dir, "coverage.cov"),
-        ])
+        args.extend(
+            [
+                "-e",
+                "-I",
+                os.path.join(f"{self.beat_path}/tests/system/pcaps", pcap),
+                "-c",
+                os.path.join(self.working_dir, config),
+                "-systemTest",
+                "-test.coverprofile",
+                os.path.join(self.working_dir, "coverage.cov"),
+            ]
+        )
+
 
         if extra_args:
             args.extend(extra_args)
@@ -86,7 +95,7 @@ class BaseTest(TestCase):
         Proc instance.
         """
         if cmd is None:
-            cmd = self.beat_path + "/packetbeat.test"
+            cmd = f"{self.beat_path}/packetbeat.test"
 
         args = [cmd,
                 "-e",

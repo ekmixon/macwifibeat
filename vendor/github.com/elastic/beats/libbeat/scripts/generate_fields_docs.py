@@ -5,18 +5,18 @@ import argparse
 
 def document_fields(output, section, sections, path):
     if "anchor" in section:
-        output.write("[[exported-fields-{}]]\n".format(section["anchor"]))
+        output.write(f'[[exported-fields-{section["anchor"]}]]\n')
 
     if "prefix" in section:
-        output.write("{}\n".format(section["prefix"]))
+        output.write(f'{section["prefix"]}\n')
 
     # Intermediate level titles
     if "description" in section and "prefix" not in section and "anchor" not in section:
         output.write("[float]\n")
 
     if "description" in section:
-        output.write("== {} fields\n\n".format(section["name"]))
-        output.write("{}\n\n".format(section["description"]))
+        output.write(f'== {section["name"]} fields\n\n')
+        output.write(f'{section["description"]}\n\n')
 
     if "fields" not in section or not section["fields"]:
         return
@@ -28,11 +28,7 @@ def document_fields(output, section, sections, path):
         if "name" not in field:
             continue
 
-        if path == "":
-            newpath = field["name"]
-        else:
-            newpath = path + "." + field["name"]
-
+        newpath = field["name"] if path == "" else f"{path}." + field["name"]
         if "type" in field and field["type"] == "group":
             document_fields(output, field, sections, newpath)
         else:
@@ -44,31 +40,29 @@ def document_field(output, field, path):
     if "path" not in field:
         field["path"] = path
 
-    output.write("*`{}`*::\n+\n--\n".format(field["path"]))
+    output.write(f'*`{field["path"]}`*::\n+\n--\n')
 
     if "type" in field:
-        output.write("type: {}\n\n".format(field["type"]))
+        output.write(f'type: {field["type"]}\n\n')
     if "example" in field:
-        output.write("example: {}\n\n".format(field["example"]))
+        output.write(f'example: {field["example"]}\n\n')
     if "format" in field:
-        output.write("format: {}\n\n".format(field["format"]))
+        output.write(f'format: {field["format"]}\n\n')
     if "required" in field:
-        output.write("required: {}\n\n".format(field["required"]))
+        output.write(f'required: {field["required"]}\n\n')
 
     if "description" in field:
-        output.write("{}\n\n".format(field["description"]))
+        output.write(f'{field["description"]}\n\n')
 
-    if "index" in field:
-        if not field["index"]:
-            output.write("{}\n\n".format("Field is not indexed."))
+    if "index" in field and not field["index"]:
+        output.write(f"Field is not indexed.\n\n")
 
-    if "enable" in field:
-        if not field["enable"]:
-            output.write("{}\n\n".format("Object is not enabled."))
+    if "enable" in field and not field["enable"]:
+        output.write(f"Object is not enabled.\n\n")
 
     if "multi_fields" in field:
         for subfield in field["multi_fields"]:
-            document_field(output, subfield, path + "." + subfield["name"])
+            document_field(output, subfield, f"{path}." + subfield["name"])
     output.write("--\n\n")
 
 
@@ -100,15 +94,12 @@ grouped in the following categories:
         return
 
     # Create sections from available fields
-    sections = {}
-    for v in docs:
-        sections[v["key"]] = v["title"]
-
+    sections = {v["key"]: v["title"] for v in docs}
     for section in sorted(docs, key=lambda field: field["key"]):
         if "anchor" not in section:
             section["anchor"] = section["key"]
 
-        output.write("* <<exported-fields-{}>>\n".format(section["anchor"]))
+        output.write(f'* <<exported-fields-{section["anchor"]}>>\n')
     output.write("\n--\n")
 
     # Sort alphabetically by key
@@ -133,13 +124,13 @@ if __name__ == "__main__":
     beat_title = args.beattitle
     es_beats = args.es_beats
 
-    fields_yml = beat_path + "/fields.yml"
+    fields_yml = f"{beat_path}/fields.yml"
 
     # Read fields.yml
     with open(fields_yml) as f:
         fields = f.read()
 
-    output = open(beat_path + "/docs/fields.asciidoc", 'w')
+    output = open(f"{beat_path}/docs/fields.asciidoc", 'w')
 
     try:
         fields_to_asciidoc(fields, output, beat_title)

@@ -22,22 +22,22 @@ This file is generated! See scripts/docs_collector.py
     # Iterate over all modules
     for module in sorted(os.listdir(base_dir)):
 
-        module_doc = path + "/" + module + "/_meta/docs.asciidoc"
+        module_doc = f"{path}/{module}/_meta/docs.asciidoc"
 
         # Only check folders where docs.asciidoc exists
         if not os.path.isfile(module_doc):
             continue
 
         module_file = generated_note
-        module_file += "[[filebeat-module-" + module + "]]\n"
+        module_file += f"[[filebeat-module-{module}" + "]]\n"
 
         with open(module_doc) as f:
             module_file += f.read()
 
-        beat_path = path + "/" + module + "/_meta"
+        beat_path = f"{path}/{module}/_meta"
 
         # Load title from fields.yml
-        with open(beat_path + "/fields.yml") as f:
+        with open(f"{beat_path}/fields.yml") as f:
             fields = yaml.load(f.read())
             title = fields[0]["title"]
 
@@ -58,15 +58,14 @@ For a description of each field in the module, see the
                   module + ".asciidoc", 'w') as f:
             f.write(module_file)
 
-    module_list_output = generated_note
-    module_list_output += "  * <<filebeat-modules-overview>>\n"
+    module_list_output = generated_note + "  * <<filebeat-modules-overview>>\n"
     for m, title in sorted(six.iteritems(modules_list)):
-        module_list_output += "  * <<filebeat-module-" + m + ">>\n"
+        module_list_output += f"  * <<filebeat-module-{m}" + ">>\n"
 
     module_list_output += "\n\n--\n\n"
     module_list_output += "include::modules-overview.asciidoc[]\n"
     for m, title in sorted(six.iteritems(modules_list)):
-        module_list_output += "include::modules/" + m + ".asciidoc[]\n"
+        module_list_output += f"include::modules/{m}" + ".asciidoc[]\n"
 
     # Write module link list
     with open(os.path.abspath("docs") + "/modules_list.asciidoc", 'w') as f:

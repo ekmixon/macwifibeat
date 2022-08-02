@@ -20,17 +20,29 @@ class Test(BaseTest):
         self.render_config_template()
         beat = self.start_beat(
             logging_args=["-e", "-d", "*"],
-            extra_args=["setup",
-                        "--dashboards",
-                        "-E", "setup.dashboards.file=" +
-                        os.path.join(self.beat_path, "tests", "files", "testbeat-dashboards.zip"),
-                        "-E", "setup.dashboards.beat=testbeat",
-                        "-E", "setup.kibana.protocol=http",
-                        "-E", "setup.kibana.host=" + self.get_kibana_host(),
-                        "-E", "setup.kibana.port=" + self.get_kibana_port(),
-                        "-E", "output.elasticsearch.hosts=['" + self.get_host() + "']",
-                        "-E", "output.file.enabled=false"]
+            extra_args=[
+                "setup",
+                "--dashboards",
+                "-E",
+                "setup.dashboards.file="
+                + os.path.join(
+                    self.beat_path, "tests", "files", "testbeat-dashboards.zip"
+                ),
+                "-E",
+                "setup.dashboards.beat=testbeat",
+                "-E",
+                "setup.kibana.protocol=http",
+                "-E",
+                f"setup.kibana.host={self.get_kibana_host()}",
+                "-E",
+                f"setup.kibana.port={self.get_kibana_port()}",
+                "-E",
+                "output.elasticsearch.hosts=['" + self.get_host() + "']",
+                "-E",
+                "output.file.enabled=false",
+            ],
         )
+
 
         beat.check_wait(exit_code=0)
 
@@ -45,18 +57,31 @@ class Test(BaseTest):
         self.render_config_template()
         beat = self.start_beat(
             logging_args=["-e", "-d", "*"],
-            extra_args=["setup",
-                        "--dashboards",
-                        "-E", "setup.dashboards.file=" +
-                        os.path.join(self.beat_path, "tests", "files", "testbeat-dashboards.zip"),
-                        "-E", "setup.dashboards.beat=testbeat",
-                        "-E", "setup.dashboards.only_index=true",
-                        "-E", "setup.kibana.protocol=http",
-                        "-E", "setup.kibana.host=" + self.get_kibana_host(),
-                        "-E", "setup.kibana.port=" + self.get_kibana_port(),
-                        "-E", "output.elasticsearch.hosts=['" + self.get_host() + "']",
-                        "-E", "output.file.enabled=false"]
+            extra_args=[
+                "setup",
+                "--dashboards",
+                "-E",
+                "setup.dashboards.file="
+                + os.path.join(
+                    self.beat_path, "tests", "files", "testbeat-dashboards.zip"
+                ),
+                "-E",
+                "setup.dashboards.beat=testbeat",
+                "-E",
+                "setup.dashboards.only_index=true",
+                "-E",
+                "setup.kibana.protocol=http",
+                "-E",
+                f"setup.kibana.host={self.get_kibana_host()}",
+                "-E",
+                f"setup.kibana.port={self.get_kibana_port()}",
+                "-E",
+                "output.elasticsearch.hosts=['" + self.get_host() + "']",
+                "-E",
+                "output.file.enabled=false",
+            ],
         )
+
 
         beat.check_wait(exit_code=0)
 
@@ -71,14 +96,20 @@ class Test(BaseTest):
 
         self.test_load_dashboard()
 
-        command = self.beat_path + "/../dev-tools/cmd/dashboards/export_dashboards -kibana http://" + \
-            self.get_kibana_host() + ":" + self.get_kibana_port()
+        command = (
+            (
+                f"{self.beat_path}/../dev-tools/cmd/dashboards/export_dashboards -kibana http://"
+                + self.get_kibana_host()
+            )
+            + ":"
+        ) + self.get_kibana_port()
+
 
         if os.name == "nt":
             command = self.beat_path + "\..\dev-tools\cmd\dashboards\export_dashboards -kibana http://" + \
-                self.get_kibana_host() + ":" + self.get_kibana_port()
+                    self.get_kibana_host() + ":" + self.get_kibana_port()
 
-        command = command + " -dashboard Metricbeat-system-overview"
+        command = f"{command} -dashboard Metricbeat-system-overview"
 
         print(command)
 

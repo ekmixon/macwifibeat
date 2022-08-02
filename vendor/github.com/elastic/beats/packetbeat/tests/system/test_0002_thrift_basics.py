@@ -5,13 +5,13 @@ class Test(BaseTest):
 
     def tutorial_asserts(self, objs):
         assert len(objs) == 17
-        assert all([o["type"] == "thrift" for o in objs])
+        assert all(o["type"] == "thrift" for o in objs)
 
         # bytes_in present for all. bytes_out present for
         # all except the zip async calls.
-        assert all([o["bytes_in"] > 0 for o in objs])
-        assert all([o["bytes_out"] > 0 for o in objs[0:14]])
-        assert all([o["bytes_out"] > 0 for o in objs[16:]])
+        assert all(o["bytes_in"] > 0 for o in objs)
+        assert all(o["bytes_out"] > 0 for o in objs[:14])
+        assert all(o["bytes_out"] > 0 for o in objs[16:])
         assert objs[14]["bytes_out"] == 0
         assert objs[15]["bytes_out"] == 0
 
@@ -58,11 +58,11 @@ class Test(BaseTest):
 
         self.tutorial_asserts(objs)
 
-        assert all([len(o["request"]) > 0 for o in objs])
+        assert all(len(o["request"]) > 0 for o in objs)
         assert objs[0]["request"] == "ping()"
         assert objs[11]["response"] == "Exceptions: (1: (1: 4, 2: " + \
-            "\"Cannot divide by 0\"))"
-        assert all([o["port"] == 9090 for o in objs])
+                "\"Cannot divide by 0\"))"
+        assert all(o["port"] == 9090 for o in objs)
 
     def test_send_options_default(self):
         """
@@ -78,8 +78,8 @@ class Test(BaseTest):
 
         self.tutorial_asserts(objs)
 
-        assert all(["request" not in o for o in objs])
-        assert all(["response" not in o for o in objs])
+        assert all("request" not in o for o in objs)
+        assert all("response" not in o for o in objs)
 
     def test_thrift_tutorial_framed(self):
         self.render_config_template(
@@ -104,9 +104,11 @@ class Test(BaseTest):
 
         objs = self.read_output()
         assert len(objs) == 17
-        assert all([o["type"] == "thrift" for o in objs])
-        assert all([o["thrift.service"] == "Calculator" or
-                    o["thrift.service"] == "SharedService" for o in objs])
+        assert all(o["type"] == "thrift" for o in objs)
+        assert all(
+            o["thrift.service"] in ["Calculator", "SharedService"] for o in objs
+        )
+
 
         assert objs[0]["method"] == "ping"
         assert objs[0]["thrift.params"] == "()"
@@ -126,7 +128,7 @@ class Test(BaseTest):
 
         assert objs[4]["method"] == "add_doubles"
         assert objs[4]["thrift.params"] == \
-            "(num1: 1.2, num2: 1.3)"
+                "(num1: 1.2, num2: 1.3)"
         assert objs[4]["thrift.return_value"] == "2.5"
 
         assert objs[5]["method"] == "echo_bool"
@@ -159,8 +161,8 @@ class Test(BaseTest):
 
         objs = self.read_output()
         assert len(objs) == 26
-        assert all([o["type"] == "thrift" for o in objs])
-        assert all([o["thrift.service"] == "ThriftTest" for o in objs])
+        assert all(o["type"] == "thrift" for o in objs)
+        assert all(o["thrift.service"] == "ThriftTest" for o in objs)
 
         # check a few things
 
@@ -179,9 +181,9 @@ class Test(BaseTest):
 
         assert objs[21]["method"] == "testString"
         assert objs[21]["thrift.params"] == "(thing: \"" + \
-            ("Python" * 20) + "\")"
+                ("Python" * 20) + "\")"
         assert objs[21]["thrift.return_value"] == '"' + \
-            ("Python" * 20) + '"'
+                ("Python" * 20) + '"'
 
     def test_thrift_send_request_response(self):
         # send_request=true send_response=false
@@ -197,8 +199,8 @@ class Test(BaseTest):
 
         objs = self.read_output()
 
-        assert all([len(o["request"]) > 0 for o in objs])
-        assert all(["response" not in o for o in objs])
+        assert all(len(o["request"]) > 0 for o in objs)
+        assert all("response" not in o for o in objs)
 
         # send_request=false send_response=false
         self.render_config_template(
@@ -213,8 +215,8 @@ class Test(BaseTest):
 
         objs = self.read_output()
 
-        assert all(["request" not in o for o in objs])
-        assert all(["response" not in o for o in objs])
+        assert all("request" not in o for o in objs)
+        assert all("response" not in o for o in objs)
 
     def test_thrift_binary(self):
         self.render_config_template(

@@ -21,9 +21,7 @@ def is_supported_linux():
     if p[0] != 'Linux':
         return False
     kv = p[1].split('.')
-    if int(kv[0]) < 3 or (int(kv[0]) == 3 and int(kv[1]) <= 10):
-        return False
-    return True
+    return int(kv[0]) >= 3 and (int(kv[0]) != 3 or int(kv[1]) > 10)
 
 
 @unittest.skipUnless(is_supported_linux(), "Requires Linux 3.11+")
@@ -48,7 +46,7 @@ class Test(BaseTest):
             '-w {0} -p w -k rule0_{1}'.format(os.path.realpath(__file__), pid),
             '-a always,exit -S mount -F pid={0} -F key=rule1_{0}'.format(pid),
         ]
-        rules_body = '|\n' + ''.join(['    ' + rule + '\n' for rule in rules])
+        rules_body = '|\n' + ''.join([f'    {rule}' + '\n' for rule in rules])
         self.render_config_template(
             modules=[{
                 "name": "auditd",
@@ -80,7 +78,7 @@ class Test(BaseTest):
             expected = rules[i]
             got = lines[i].strip()
             assert expected == got, \
-                "rule {0} doesn't match. expected='{1}' got='{2}'".format(
+                    "rule {0} doesn't match. expected='{1}' got='{2}'".format(
                     i, expected, got
                 )
 
@@ -101,7 +99,7 @@ class Test(BaseTest):
             'features',
         ]
 
-        fields = dict((f, False) for f in expected)
+        fields = {f: False for f in expected}
 
         fd, output_file = tempfile.mkstemp()
         self.run_beat(extra_args=['show', 'auditd-status'],

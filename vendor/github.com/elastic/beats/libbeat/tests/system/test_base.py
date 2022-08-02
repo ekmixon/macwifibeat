@@ -32,8 +32,11 @@ class Test(BaseTest):
         """
         Checks stop on invalid config
         """
-        shutil.copy(self.beat_path + "/tests/files/invalid.yml",
-                    os.path.join(self.working_dir, "invalid.yml"))
+        shutil.copy(
+            f"{self.beat_path}/tests/files/invalid.yml",
+            os.path.join(self.working_dir, "invalid.yml"),
+        )
+
 
         exit_code = self.run_beat(config="invalid.yml")
 
@@ -67,11 +70,14 @@ class Test(BaseTest):
         """
         Checks if -configtest works as expected
         """
-        shutil.copy(self.beat_path + "/_meta/config.yml",
-                    os.path.join(self.working_dir, "libbeat.yml"))
-        with open(self.working_dir + "/mockbeat.template.json", "w") as f:
+        shutil.copy(
+            f"{self.beat_path}/_meta/config.yml",
+            os.path.join(self.working_dir, "libbeat.yml"),
+        )
+
+        with open(f"{self.working_dir}/mockbeat.template.json", "w") as f:
             f.write('{"template": true}')
-        with open(self.working_dir + "/mockbeat.template-es2x.json", "w") as f:
+        with open(f"{self.working_dir}/mockbeat.template-es2x.json", "w") as f:
             f.write('{"template": true}')
 
         exit_code = self.run_beat(
@@ -108,21 +114,25 @@ class Test(BaseTest):
         """
         Checks if version param works
         """
-        args = [self.beat_path + "/libbeat.test"]
+        args = [
+            f"{self.beat_path}/libbeat.test",
+            *[
+                "-version",
+                "-e",
+                "-systemTest",
+                "-v",
+                "-d",
+                "*",
+                "-test.coverprofile",
+                os.path.join(self.working_dir, "coverage.cov"),
+            ],
+        ]
 
-        args.extend(["-version",
-                     "-e",
-                     "-systemTest",
-                     "-v",
-                     "-d", "*",
-                     "-test.coverprofile",
-                     os.path.join(self.working_dir, "coverage.cov")
-                     ])
 
         assert self.log_contains("error loading config file") is False
 
         with open(os.path.join(self.working_dir, "mockbeat.log"), "wb")  \
-                as outputfile:
+                    as outputfile:
             proc = subprocess.Popen(args,
                                     stdout=outputfile,
                                     stderr=subprocess.STDOUT)

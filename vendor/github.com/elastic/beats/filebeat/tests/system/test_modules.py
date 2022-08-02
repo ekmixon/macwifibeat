@@ -21,11 +21,7 @@ def load_fileset_test_cases():
     modules_dir = os.path.join(current_dir, "..", "..", "module")
 
     modules = os.getenv("TESTING_FILEBEAT_MODULES")
-    if modules:
-        modules = modules.split(",")
-    else:
-        modules = os.listdir(modules_dir)
-
+    modules = modules.split(",") if modules else os.listdir(modules_dir)
     test_cases = []
 
     for module in modules:
@@ -43,9 +39,7 @@ def load_fileset_test_cases():
 
             test_files = glob.glob(os.path.join(modules_dir, module,
                                                 fileset, "test", "*.log"))
-            for test_file in test_files:
-                test_cases.append([module, fileset, test_file])
-
+            test_cases.extend([module, fileset, test_file] for test_file in test_files)
     return test_cases
 
 
@@ -53,7 +47,7 @@ class Test(BaseTest):
 
     def init(self):
         self.elasticsearch_url = self.get_elasticsearch_url()
-        print("Using elasticsearch: {}".format(self.elasticsearch_url))
+        print(f"Using elasticsearch: {self.elasticsearch_url}")
         self.es = Elasticsearch([self.elasticsearch_url])
         logging.getLogger("urllib3").setLevel(logging.WARNING)
         logging.getLogger("elasticsearch").setLevel(logging.ERROR)
@@ -90,7 +84,7 @@ class Test(BaseTest):
             cfgfile=cfgfile)
 
     def run_on_file(self, module, fileset, test_file, cfgfile):
-        print("Testing {}/{} on {}".format(module, fileset, test_file))
+        print(f"Testing {module}/{fileset} on {test_file}")
 
         try:
             self.es.indices.delete(index=self.index_name)
@@ -99,17 +93,29 @@ class Test(BaseTest):
         self.wait_until(lambda: not self.es.indices.exists(self.index_name))
 
         cmd = [
-            self.filebeat, "-systemTest",
-            "-e", "-d", "*", "-once",
-            "-c", cfgfile,
-            "-modules={}".format(module),
-            "-M", "{module}.*.enabled=false".format(module=module),
-            "-M", "{module}.{fileset}.enabled=true".format(
-                module=module, fileset=fileset),
-            "-M", "{module}.{fileset}.var.paths=[{test_file}]".format(
-                module=module, fileset=fileset, test_file=test_file),
-            "-M", "*.*.input.close_eof=true",
+            self.filebeat,
+            "-systemTest",
+            "-e",
+            "-d",
+            "*",
+            "-once",
+            "-c",
+            cfgfile,
+            f"-modules={module}",
+            "-M",
+            "{module}.*.enabled=false".format(module=module),
+            "-M",
+            "{module}.{fileset}.enabled=true".format(
+                module=module, fileset=fileset
+            ),
+            "-M",
+            "{module}.{fileset}.var.paths=[{test_file}]".format(
+                module=module, fileset=fileset, test_file=test_file
+            ),
+            "-M",
+            "*.*.input.close_eof=true",
         ]
+
 
         output_path = os.path.join(self.working_dir)
         output = open(os.path.join(output_path, "output.log"), "ab")
@@ -128,29 +134,28 @@ class Test(BaseTest):
         res = self.es.search(index=self.index_name,
                              body={"query": {"match_all": {}}, "size": 100, "sort": {"offset": {"order": "asc"}}})
         objects = [o["_source"] for o in res["hits"]["hits"]]
-        assert len(objects) > 0
+        assert objects
         for obj in objects:
-            assert obj["fileset"]["module"] == module, "expected fileset.module={} but got {}".format(
-                module, obj["fileset"]["module"])
+            assert (
+                obj["fileset"]["module"] == module
+            ), f'expected fileset.module={module} but got {obj["fileset"]["module"]}'
 
-            assert "error" not in obj, "not error expected but got: {}".format(
-                obj)
 
-            if (module == "auditd" and fileset == "log") \
-                    or (module == "osquery" and fileset == "result"):
-                # There are dynamic fields that are not documented.
-                pass
-            else:
+            assert "error" not in obj, f"not error expected but got: {obj}"
+
+            if (module != "auditd" or fileset != "log") and (
+                module != "osquery" or fileset != "result"
+            ):
                 self.assert_fields_are_documented(obj)
 
-        if os.path.exists(test_file + "-expected.json"):
+        if os.path.exists(f"{test_file}-expected.json"):
             self._test_expected_events(test_file, objects)
 
     def _test_expected_events(self, test_file, objects):
 
         # Generate expected files if GENERATE env variable is set
         if os.getenv("GENERATE"):
-            with open(test_file + "-expected.json", 'w') as f:
+            with open(f"{test_file}-expected.json", 'w') as f:
                 # Flatten an cleanup objects
                 # This makes sure when generated on different machines / version the expected.json stays the same.
                 for k, obj in enumerate(objects):
@@ -158,11 +163,13 @@ class Test(BaseTest):
                     clean_keys(objects[k])
                 json.dump(objects, f, indent=4, sort_keys=True)
 
-        with open(test_file + "-expected.json", "r") as f:
+        with open(f"{test_file}-expected.json", "r") as f:
             expected = json.load(f)
 
-        assert len(expected) == len(objects), "expected {} events to compare but got {}".format(
-            len(expected), len(objects))
+        assert len(expected) == len(
+            objects
+        ), f"expected {len(expected)} events to compare but got {len(objects)}"
+
 
         for ev in expected:
             found = False
@@ -181,8 +188,9 @@ class Test(BaseTest):
                     found = True
                     break
 
-            assert found, "The following expected object was not found:\n {}\nSearched in: \n{}".format(
-                pretty_json(ev), pretty_json(objects))
+            assert (
+                found
+            ), f"The following expected object was not found:\n {pretty_json(ev)}\nSearched in: \n{pretty_json(objects)}"
 
 
 def clean_keys(obj):

@@ -110,29 +110,29 @@ class Proc(object):
 class TestCase(unittest.TestCase, ComposeMixin):
 
     @classmethod
-    def setUpClass(self):
+    def setUpClass(cls):
 
         # Path to test binary
-        if not hasattr(self, 'beat_name'):
-            self.beat_name = "beat"
+        if not hasattr(cls, 'beat_name'):
+            cls.beat_name = "beat"
 
-        if not hasattr(self, 'beat_path'):
-            self.beat_path = "."
+        if not hasattr(cls, 'beat_path'):
+            cls.beat_path = "."
 
         # Path to test binary
-        if not hasattr(self, 'test_binary'):
-            self.test_binary = os.path.abspath(self.beat_path + "/" + self.beat_name + ".test")
+        if not hasattr(cls, 'test_binary'):
+            cls.test_binary = os.path.abspath(f"{cls.beat_path}/{cls.beat_name}.test")
 
         # Create build path
-        build_dir = self.beat_path + "/build"
-        self.build_path = build_dir + "/system-tests/"
+        build_dir = f"{cls.beat_path}/build"
+        cls.build_path = f"{build_dir}/system-tests/"
 
         # Start the containers needed to run these tests
-        self.compose_up()
+        cls.compose_up()
 
     @classmethod
-    def tearDownClass(self):
-        self.compose_down()
+    def tearDownClass(cls):
+        cls.compose_down()
 
     def run_beat(self,
                  cmd=None,
@@ -149,10 +149,7 @@ class TestCase(unittest.TestCase, ComposeMixin):
         proc = self.start_beat(cmd=cmd, config=config, output=output,
                                logging_args=logging_args,
                                extra_args=extra_args)
-        if exit_code != None:
-            return proc.check_wait(exit_code)
-
-        return proc.wait()
+        return proc.check_wait(exit_code) if exit_code != None else proc.wait()
 
     def start_beat(self,
                    cmd=None,
@@ -171,10 +168,10 @@ class TestCase(unittest.TestCase, ComposeMixin):
             cmd = self.test_binary
 
         if config is None:
-            config = self.beat_name + ".yml"
+            config = f"{self.beat_name}.yml"
 
         if output is None:
-            output = self.beat_name + ".log"
+            output = f"{self.beat_name}.log"
 
         args = [cmd,
                 "-systemTest",
@@ -201,10 +198,10 @@ class TestCase(unittest.TestCase, ComposeMixin):
         if template_name is None:
             template_name = self.beat_name
 
-        template_path = "./tests/system/config/" + template_name + ".yml.j2"
+        template_path = f"./tests/system/config/{template_name}.yml.j2"
 
         if output is None:
-            output = self.beat_name + ".yml"
+            output = f"{self.beat_name}.yml"
 
         template = self.template_env.get_template(template_path)
 
@@ -223,7 +220,7 @@ class TestCase(unittest.TestCase, ComposeMixin):
 
         # Init defaults
         if output_file is None:
-            output_file = "output/" + self.beat_name
+            output_file = f"output/{self.beat_name}"
 
         jsons = []
         with open(os.path.join(self.working_dir, output_file), "r") as f:
@@ -236,7 +233,7 @@ class TestCase(unittest.TestCase, ComposeMixin):
                     jsons.append(self.flatten_object(json.loads(
                         line, object_pairs_hook=self.json_raise_on_duplicates), []))
                 except:
-                    print("Fail to load the json {}".format(line))
+                    print(f"Fail to load the json {line}")
                     raise
 
         self.all_have_fields(jsons, required_fields or BEAT_REQUIRED_FIELDS)
@@ -247,7 +244,7 @@ class TestCase(unittest.TestCase, ComposeMixin):
 
         # Init defaults
         if output_file is None:
-            output_file = "output/" + self.beat_name
+            output_file = f"output/{self.beat_name}"
 
         jsons = []
         with open(os.path.join(self.working_dir, output_file), "r") as f:
@@ -287,8 +284,10 @@ class TestCase(unittest.TestCase, ComposeMixin):
         )
 
         # create working dir
-        self.working_dir = os.path.abspath(os.path.join(
-            self.build_path + "run", self.id()))
+        self.working_dir = os.path.abspath(
+            os.path.join(f"{self.build_path}run", self.id())
+        )
+
         if os.path.exists(self.working_dir):
             shutil.rmtree(self.working_dir)
         os.makedirs(self.working_dir)
@@ -300,10 +299,9 @@ class TestCase(unittest.TestCase, ComposeMixin):
 
         try:
             # update the last_run link
-            if os.path.islink(self.build_path + "last_run"):
-                os.unlink(self.build_path + "last_run")
-            os.symlink(self.build_path + "run/{}".format(self.id()),
-                       self.build_path + "last_run")
+            if os.path.islink(f"{self.build_path}last_run"):
+                os.unlink(f"{self.build_path}last_run")
+            os.symlink(self.build_path + f"run/{self.id()}", f"{self.build_path}last_run")
         except:
             # symlink is best effort and can fail when
             # running tests in parallel
@@ -321,8 +319,13 @@ class TestCase(unittest.TestCase, ComposeMixin):
         start = datetime.now()
         while not cond():
             if datetime.now() - start > timedelta(seconds=max_timeout):
-                raise TimeoutError("Timeout waiting for '{}' to be true. ".format(name) +
-                                   "Waited {} seconds.".format(max_timeout))
+                raise TimeoutError(
+                    (
+                        f"Timeout waiting for '{name}' to be true. "
+                        + f"Waited {max_timeout} seconds."
+                    )
+                )
+
             time.sleep(poll_interval)
 
     def get_log(self, logfile=None):
@@ -330,7 +333,7 @@ class TestCase(unittest.TestCase, ComposeMixin):
         Returns the log as a string.
         """
         if logfile is None:
-            logfile = self.beat_name + ".log"
+            logfile = f"{self.beat_name}.log"
 
         with open(os.path.join(self.working_dir, logfile), 'r') as f:
             data = f.read()
@@ -366,7 +369,7 @@ class TestCase(unittest.TestCase, ComposeMixin):
 
         # Init defaults
         if logfile is None:
-            logfile = self.beat_name + ".log"
+            logfile = f"{self.beat_name}.log"
 
         try:
             with open(os.path.join(self.working_dir, logfile), "r") as f:
@@ -383,11 +386,11 @@ class TestCase(unittest.TestCase, ComposeMixin):
     def output_lines(self, output_file=None):
         """ Count number of lines in a file."""
         if output_file is None:
-            output_file = "output/" + self.beat_name
+            output_file = f"output/{self.beat_name}"
 
         try:
             with open(os.path.join(self.working_dir, output_file), "r") as f:
-                return sum([1 for line in f])
+                return sum(1 for _ in f)
         except IOError:
             return 0
 
@@ -398,11 +401,11 @@ class TestCase(unittest.TestCase, ComposeMixin):
 
         # Init defaults
         if output_file is None:
-            output_file = "output/" + self.beat_name
+            output_file = f"output/{self.beat_name}"
 
         try:
             with open(os.path.join(self.working_dir, output_file), "r") as f:
-                return len([1 for line in f]) == lines
+                return len([1 for _ in f]) == lines
         except IOError:
             return False
 
@@ -423,9 +426,8 @@ class TestCase(unittest.TestCase, ComposeMixin):
         Raises Exception if not true.
         """
         for field in fields:
-            if not all([field in o for o in objs]):
-                raise Exception("Not all objects have a '{}' field"
-                                .format(field))
+            if any(field not in o for o in objs):
+                raise Exception(f"Not all objects have a '{field}' field")
 
     def all_have_only_fields(self, objs, fields):
         """
@@ -447,8 +449,7 @@ class TestCase(unittest.TestCase, ComposeMixin):
                 known = key in dict_fields or key in expected_fields
                 ismeta = key.startswith('@metadata.')
                 if not(known or ismeta):
-                    raise Exception("Unexpected key '{}' found"
-                                    .format(key))
+                    raise Exception(f"Unexpected key '{key}' found")
 
     def load_fields(self, fields_doc=None):
         """
@@ -460,7 +461,7 @@ class TestCase(unittest.TestCase, ComposeMixin):
         """
 
         if fields_doc is None:
-            fields_doc = self.beat_path + "/fields.yml"
+            fields_doc = f"{self.beat_path}/fields.yml"
 
         def extract_fields(doc_list, name):
             fields = []
@@ -476,11 +477,7 @@ class TestCase(unittest.TestCase, ComposeMixin):
                     continue
 
                 # Chain together names
-                if name != "":
-                    newName = name + "." + field["name"]
-                else:
-                    newName = field["name"]
-
+                newName = f"{name}." + field["name"] if name != "" else field["name"]
                 if field.get("type") == "group":
                     subfields, subdictfields = extract_fields(field["fields"], newName)
                     fields.extend(subfields)
@@ -495,9 +492,12 @@ class TestCase(unittest.TestCase, ComposeMixin):
 
         # TODO: Make fields_doc path more generic to work with beat-generator
         with open(fields_doc, "r") as f:
-            path = os.path.abspath(os.path.dirname(__file__) + "../../../../fields.yml")
+            path = os.path.abspath(f"{os.path.dirname(__file__)}../../../../fields.yml")
             if not os.path.isfile(path):
-                path = os.path.abspath(os.path.dirname(__file__) + "../../../../_meta/fields.common.yml")
+                path = os.path.abspath(
+                    f"{os.path.dirname(__file__)}../../../../_meta/fields.common.yml"
+                )
+
             with open(path) as f2:
                 content = f2.read()
 
@@ -525,15 +525,15 @@ class TestCase(unittest.TestCase, ComposeMixin):
         for key, value in obj.items():
             if isinstance(value, dict) and prefix + key not in dict_fields:
                 new_prefix = prefix + key + "."
-                result.update(self.flatten_object(value, dict_fields,
-                                                  new_prefix))
+                result |= self.flatten_object(value, dict_fields, new_prefix)
+
             else:
                 result[prefix + key] = value
         return result
 
     def copy_files(self, files, source_dir="", target_dir=""):
         if not source_dir:
-            source_dir = self.beat_path + "/tests/files/"
+            source_dir = f"{self.beat_path}/tests/files/"
         if target_dir:
             target_dir = os.path.join(self.working_dir, target_dir)
         else:
@@ -549,11 +549,11 @@ class TestCase(unittest.TestCase, ComposeMixin):
 
         # Init defaults
         if output_file is None:
-            output_file = "output/" + self.beat_name
+            output_file = f"output/{self.beat_name}"
 
         try:
             with open(os.path.join(self.working_dir, output_file), "r") as f:
-                return pred(len([1 for line in f]))
+                return pred(len([1 for _ in f]))
         except IOError:
             return False
 
@@ -588,4 +588,4 @@ class TestCase(unittest.TestCase, ComposeMixin):
             documented = key in expected_fields
             metaKey = key.startswith('@metadata.')
             if not(documented or metaKey):
-                raise Exception("Key '{}' found in event is not documented!".format(key))
+                raise Exception(f"Key '{key}' found in event is not documented!")

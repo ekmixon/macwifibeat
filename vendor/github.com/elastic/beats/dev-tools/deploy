@@ -11,7 +11,7 @@ def main():
     args = parser.parse_args()
 
     dir = os.path.dirname(__file__)
-    os.chdir(dir + "/../")
+    os.chdir(f"{dir}/../")
     print("Getting dependencies")
     check_call("make clean", shell=True)
     print("Done building Docker images.")

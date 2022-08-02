@@ -21,11 +21,11 @@ def main():
         lines = f.readlines()
     for i, line in enumerate(lines):
         if line.startswith(":stack-version:"):
-            lines[i] = ":stack-version: {}\n".format(version)
+            lines[i] = f":stack-version: {version}\n"
         if line.startswith(":branch:"):
-          lines[i] = ":branch: {}\n".format(branch)
+            lines[i] = f":branch: {branch}\n"
         if line.startswith(":doc-branch:"):
-          lines[i] = ":doc-branch: {}\n".format(branch)
+            lines[i] = f":doc-branch: {branch}\n"
     with open("libbeat/docs/version.asciidoc", "w") as f:
         f.writelines(lines)
 

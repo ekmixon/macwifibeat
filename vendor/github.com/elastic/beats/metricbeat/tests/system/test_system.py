@@ -289,7 +289,7 @@ class Test(metricbeat.BaseTest):
         self.assert_fields_are_documented(evt)
 
         memory = evt["system"]["memory"]
-        if not re.match("(?i)linux", sys.platform) and not "hugepages" in memory:
+        if not re.match("(?i)linux", sys.platform) and "hugepages" not in memory:
             # Ensure presence of hugepages only in Linux
             memory["hugepages"] = None
         self.assertItemsEqual(self.de_dot(SYSTEM_MEMORY_FIELDS), memory.keys())
@@ -421,7 +421,7 @@ class Test(metricbeat.BaseTest):
             self.assertTrue(found_fd, "fd not found in any process events")
 
         if sys.platform.startswith("linux") or sys.platform.startswith("freebsd")\
-                or sys.platform.startswith("darwin"):
+                    or sys.platform.startswith("darwin"):
             self.assertTrue(found_env, "env not found in any process events")
 
     @unittest.skipUnless(re.match("(?i)win|linux|darwin|freebsd", sys.platform), "os")

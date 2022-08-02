@@ -16,9 +16,9 @@ Contains tests for reading from the Event Logging API (pre MS Vista).
 class Test(WriteReadTest):
 
     @classmethod
-    def setUpClass(self):
-        self.api = "eventlogging"
-        super(WriteReadTest, self).setUpClass()
+    def setUpClass(cls):
+        cls.api = "eventlogging"
+        super(WriteReadTest, cls).setUpClass()
 
     def test_read_one_event(self):
         """
@@ -74,7 +74,7 @@ class Test(WriteReadTest):
         accountIdentifier = "S-1-5-21-3623811015-3361044348-30300820-1013"
         sid = win32security.ConvertStringSidToSid(accountIdentifier)
 
-        msg = "Unknown SID " + accountIdentifier
+        msg = f"Unknown SID {accountIdentifier}"
         self.write_event_log(msg, sid=sid)
         evts = self.read_events()
         self.assertTrue(len(evts), 1)

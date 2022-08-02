@@ -8,7 +8,7 @@ import random
 # Writes log entries to a log file
 logger = logging.getLogger('test-logger')
 
-log_file = "/logfiles/" + socket.gethostname() + ".log"
+log_file = f"/logfiles/{socket.gethostname()}.log"
 
 # Setup python log handler
 handler = logging.handlers.RotatingFileHandler(
@@ -26,5 +26,5 @@ while True:
     # Tries to cause some more heavy peaks
     events = random.randrange(10) + 1
     for n in range(events):
-        line = str(i) + " hello world " + str(n)
+        line = f"{str(i)} hello world {str(n)}"
         logger.warning("%s", line)

@@ -18,7 +18,7 @@ def main():
         lines = f.readlines()
     for i, line in enumerate(lines):
         if line.startswith(":stack-version:"):
-            lines[i] = ":stack-version: {}\n".format(version)
+            lines[i] = f":stack-version: {version}\n"
     with open("libbeat/docs/version.asciidoc", "w") as f:
         f.writelines(lines)
 

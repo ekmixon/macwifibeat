@@ -52,11 +52,9 @@ class Test(BaseTest):
         """
         server = self.start_server("hello world", 200)
         self.render_config_template(
-            monitors=[{
-                "type": "tcp",
-                "hosts": ["localhost:" + port],
-            }],
+            monitors=[{"type": "tcp", "hosts": [f"localhost:{port}"]}]
         )
+
 
         proc = self.start_beat()
         self.wait_until(lambda: self.log_contains("heartbeat is running"))

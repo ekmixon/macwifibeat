@@ -14,7 +14,7 @@ class Test(BaseTest):
     def init(self):
         self.elasticsearch_url = self.get_elasticsearch_url()
         self.kibana_url = self.get_kibana_url()
-        print("Using elasticsearch: {}".format(self.elasticsearch_url))
+        print(f"Using elasticsearch: {self.elasticsearch_url}")
         self.es = Elasticsearch([self.elasticsearch_url])
         logging.getLogger("urllib3").setLevel(logging.WARNING)
         logging.getLogger("elasticsearch").setLevel(logging.ERROR)
@@ -47,7 +47,7 @@ class Test(BaseTest):
     def _run_ml_test(self, setup_flag, modules_flag):
         self.init()
 
-        print("Test setup_flag: {}, modules_flag: {}".format(setup_flag, modules_flag))
+        print(f"Test setup_flag: {setup_flag}, modules_flag: {modules_flag}")
 
         # Clean any previous state
         for df in self.es.transport.perform_request("GET", "/_xpack/ml/datafeeds/")["datafeeds"]:
@@ -85,11 +85,7 @@ class Test(BaseTest):
             "-c", cfgfile
         ]
 
-        if setup_flag:
-            cmd += ["--setup"]
-        else:
-            cmd += ["setup", "--machine-learning"]
-
+        cmd += ["--setup"] if setup_flag else ["setup", "--machine-learning"]
         if modules_flag:
             cmd += ["--modules=nginx"]
 

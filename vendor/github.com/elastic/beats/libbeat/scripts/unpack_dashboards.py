@@ -41,10 +41,7 @@ if __name__ == "__main__":
 
     paths = glob.glob(args.glob)
 
-    method = json.dumps
-    if args.transform == "decode":
-        method = json.loads
-
+    method = json.loads if args.transform == "decode" else json.dumps
     for path in paths:
         data = transform_file(path, method)
         new_data = json.dumps(data, sort_keys=True, indent=4)

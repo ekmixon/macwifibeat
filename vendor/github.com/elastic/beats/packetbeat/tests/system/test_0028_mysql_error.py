@@ -11,9 +11,9 @@ class Test(BaseTest):
                             debug_selectors=["mysql,tcp,publish"])
 
         objs = self.read_output()
-        assert all([o["type"] == "mysql" for o in objs])
+        assert all(o["type"] == "mysql" for o in objs)
         assert len(objs) == 1
-        assert all([o["port"] == 3306 for o in objs])
+        assert all(o["port"] == 3306 for o in objs)
 
         assert objs[0]["method"] == "SELECT"
         assert objs[0]["status"] == "Error"

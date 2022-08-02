@@ -71,8 +71,8 @@ class Test(BaseTest):
                               ca_certs=CERTIFICATE1, do_handshake_on_connect=True)
         tls.connect((config.get('host'), config.get('port')))
 
-        for n in range(0, NUMBER_OF_EVENTS):
-            tls.send("Hello World: " + str(n) + "\n")
+        for n in range(NUMBER_OF_EVENTS):
+            tls.send(f"Hello World: {str(n)}" + "\n")
 
         self.wait_until(lambda: self.output_count(
             lambda x: x >= NUMBER_OF_EVENTS))
@@ -207,8 +207,8 @@ class Test(BaseTest):
 
         tls.connect((config.get('host'), config.get('port')))
 
-        for n in range(0, NUMBER_OF_EVENTS):
-            tls.send("Hello World: " + str(n) + "\n")
+        for n in range(NUMBER_OF_EVENTS):
+            tls.send(f"Hello World: {str(n)}" + "\n")
 
         self.wait_until(lambda: self.output_count(
             lambda x: x >= NUMBER_OF_EVENTS))
@@ -260,12 +260,15 @@ class Test(BaseTest):
         # The TLS handshake will close the connection, resulting in a broken pipe.
         # no events should be written on disk.
         with assert_raises(IOError):
-            for n in range(0, 100000):
-                sock.send("Hello World: " + str(n) + "\n")
+            for n in range(100000):
+                sock.send(f"Hello World: {str(n)}" + "\n")
 
         filebeat.check_kill_and_wait()
 
-        assert path.isfile(path.join(self.working_dir, "output/" + self.beat_name)) is False
+        assert (
+            path.isfile(path.join(self.working_dir, f"output/{self.beat_name}"))
+            is False
+        )
 
     def assert_output(self, output):
         assert len(output) == 2

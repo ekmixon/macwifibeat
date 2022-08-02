@@ -23,8 +23,8 @@ def read_input():
 
     protocol = protocol.lower()
 
-    plugin_type = protocol + "Plugin"
-    plugin_var = protocol[0] + "p"
+    plugin_type = f"{protocol}Plugin"
+    plugin_var = f"{protocol[0]}p"
 
 
 def process_file():
@@ -37,7 +37,7 @@ def process_file():
 
         for file in files:
 
-            full_path = root + "/" + file
+            full_path = f"{root}/{file}"
 
             # load file
             content = ""
@@ -51,10 +51,10 @@ def process_file():
             new_path = replace_variables(full_path).replace(".go.tmpl", ".go")
 
             # remove generator info from path
-            file_path = new_path.replace(generator_path + "/tcp-protocol/", "")
+            file_path = new_path.replace(f"{generator_path}/tcp-protocol/", "")
 
             # New file path to write file content to
-            write_file = "protos/" + file_path
+            write_file = f"protos/{file_path}"
 
             # Create parent directory if it does not exist yet
             dir = os.path.dirname(write_file)

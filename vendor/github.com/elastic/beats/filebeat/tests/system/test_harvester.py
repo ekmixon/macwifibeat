@@ -19,23 +19,21 @@ class Test(BaseTest):
         """
 
         self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/log/test.log",
+            path=f"{os.path.abspath(self.working_dir)}/log/test.log",
             close_renamed="true",
             clean_removed="false",
-            scan_frequency="0.1s"
+            scan_frequency="0.1s",
         )
-        os.mkdir(self.working_dir + "/log/")
 
-        testfile1 = self.working_dir + "/log/test.log"
-        testfile2 = self.working_dir + "/log/test.log.rotated"
-        file = open(testfile1, 'w')
+        os.mkdir(f"{self.working_dir}/log/")
 
-        iterations1 = 5
-        for n in range(0, iterations1):
-            file.write("rotation file")
-            file.write("\n")
-
-        file.close()
+        testfile1 = f"{self.working_dir}/log/test.log"
+        testfile2 = f"{self.working_dir}/log/test.log.rotated"
+        with open(testfile1, 'w') as file:
+            iterations1 = 5
+            for _ in range(iterations1):
+                file.write("rotation file")
+                file.write("\n")
 
         filebeat = self.start_beat()
 
@@ -45,10 +43,8 @@ class Test(BaseTest):
 
         os.rename(testfile1, testfile2)
 
-        file = open(testfile1, 'w', 0)
-        file.write("Hello World\n")
-        file.close()
-
+        with open(testfile1, 'w', 0) as file:
+            file.write("Hello World\n")
         # Wait until error shows up
         self.wait_until(
             lambda: self.log_contains(
@@ -79,22 +75,20 @@ class Test(BaseTest):
         Checks that a file is closed if removed
         """
         self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/log/test.log",
+            path=f"{os.path.abspath(self.working_dir)}/log/test.log",
             close_removed="true",
             clean_removed="false",
-            scan_frequency="0.1s"
+            scan_frequency="0.1s",
         )
-        os.mkdir(self.working_dir + "/log/")
 
-        testfile1 = self.working_dir + "/log/test.log"
-        file = open(testfile1, 'w')
+        os.mkdir(f"{self.working_dir}/log/")
 
-        iterations1 = 5
-        for n in range(0, iterations1):
-            file.write("rotation file")
-            file.write("\n")
-
-        file.close()
+        testfile1 = f"{self.working_dir}/log/test.log"
+        with open(testfile1, 'w') as file:
+            iterations1 = 5
+            for _ in range(iterations1):
+                file.write("rotation file")
+                file.write("\n")
 
         filebeat = self.start_beat()
 
@@ -128,21 +122,19 @@ class Test(BaseTest):
         Checks that a file is closed if eof is reached
         """
         self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/log/test.log",
+            path=f"{os.path.abspath(self.working_dir)}/log/test.log",
             close_eof="true",
-            scan_frequency="0.1s"
+            scan_frequency="0.1s",
         )
-        os.mkdir(self.working_dir + "/log/")
 
-        testfile1 = self.working_dir + "/log/test.log"
-        file = open(testfile1, 'w')
+        os.mkdir(f"{self.working_dir}/log/")
 
-        iterations1 = 5
-        for n in range(0, iterations1):
-            file.write("rotation file")
-            file.write("\n")
-
-        file.close()
+        testfile1 = f"{self.working_dir}/log/test.log"
+        with open(testfile1, 'w') as file:
+            iterations1 = 5
+            for _ in range(iterations1):
+                file.write("rotation file")
+                file.write("\n")
 
         filebeat = self.start_beat()
 
@@ -168,11 +160,12 @@ class Test(BaseTest):
         Checks that no empty events are sent for an empty line but state is still updated
         """
         self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/log/test.log",
+            path=f"{os.path.abspath(self.working_dir)}/log/test.log"
         )
-        os.mkdir(self.working_dir + "/log/")
 
-        logfile = self.working_dir + "/log/test.log"
+        os.mkdir(f"{self.working_dir}/log/")
+
+        logfile = f"{self.working_dir}/log/test.log"
 
         filebeat = self.start_beat()
 
@@ -194,9 +187,9 @@ class Test(BaseTest):
 
         # Wait until offset for new line is updated
         self.wait_until(
-            lambda: self.log_contains(
-                "offset: " + str(expectedOffset)),
-            max_timeout=15)
+            lambda: self.log_contains(f"offset: {expectedOffset}"), max_timeout=15
+        )
+
 
         with open(logfile, 'a') as f:
             f.write("Third line\n")
@@ -217,11 +210,12 @@ class Test(BaseTest):
         Checks that no empty events are sent for a file with only empty lines
         """
         self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/log/test.log",
+            path=f"{os.path.abspath(self.working_dir)}/log/test.log"
         )
-        os.mkdir(self.working_dir + "/log/")
 
-        logfile = self.working_dir + "/log/test.log"
+        os.mkdir(f"{self.working_dir}/log/")
+
+        logfile = f"{self.working_dir}/log/test.log"
 
         filebeat = self.start_beat()
 
@@ -238,11 +232,11 @@ class Test(BaseTest):
 
         # Wait until offset for new line is updated
         self.wait_until(
-            lambda: self.log_contains(
-                "offset: " + str(expectedOffset)),
-            max_timeout=15)
+            lambda: self.log_contains(f"offset: {expectedOffset}"), max_timeout=15
+        )
 
-        assert os.path.isfile(self.working_dir + "/output/filebeat") == False
+
+        assert os.path.isfile(f"{self.working_dir}/output/filebeat") == False
 
         filebeat.check_kill_and_wait()
 
@@ -256,12 +250,13 @@ class Test(BaseTest):
         Checks that also full line is sent if lines exceeds buffer
         """
         self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/log/test.log",
+            path=f"{os.path.abspath(self.working_dir)}/log/test.log",
             harvester_buffer_size=10,
         )
-        os.mkdir(self.working_dir + "/log/")
 
-        logfile = self.working_dir + "/log/test.log"
+        os.mkdir(f"{self.working_dir}/log/")
+
+        logfile = f"{self.working_dir}/log/test.log"
 
         filebeat = self.start_beat()
         message = "This exceeds the buffer"
@@ -293,11 +288,12 @@ class Test(BaseTest):
         Checks if it is correctly detected if an open file is truncated
         """
         self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/log/test.log",
+            path=f"{os.path.abspath(self.working_dir)}/log/test.log"
         )
 
-        os.mkdir(self.working_dir + "/log/")
-        logfile = self.working_dir + "/log/test.log"
+
+        os.mkdir(f"{self.working_dir}/log/")
+        logfile = f"{self.working_dir}/log/test.log"
 
         message = "Hello World"
 
@@ -340,12 +336,13 @@ class Test(BaseTest):
         Checks if it is correctly detected if a closed file is truncated
         """
         self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/log/test.log",
+            path=f"{os.path.abspath(self.working_dir)}/log/test.log",
             close_inactive="1s",
         )
 
-        os.mkdir(self.working_dir + "/log/")
-        logfile = self.working_dir + "/log/test.log"
+
+        os.mkdir(f"{self.working_dir}/log/")
+        logfile = f"{self.working_dir}/log/test.log"
 
         message = "Hello World"
 
@@ -390,28 +387,26 @@ class Test(BaseTest):
         Checks that a file is closed after close_timeout
         """
         self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/log/test.log",
+            path=f"{os.path.abspath(self.working_dir)}/log/test.log",
             close_timeout="1s",
-            scan_frequency="1s"
+            scan_frequency="1s",
         )
-        os.mkdir(self.working_dir + "/log/")
+
+        os.mkdir(f"{self.working_dir}/log/")
 
         filebeat = self.start_beat()
 
-        testfile1 = self.working_dir + "/log/test.log"
-        file = open(testfile1, 'w')
-
-        # Write 1000 lines with a sleep between each line to make sure it takes more then 1s to complete
-        iterations1 = 1000
-        for n in range(0, iterations1):
-            file.write("example data")
-            file.write("\n")
-            # Make sure some contents are written to disk so the harvested is able to read it.
-            file.flush()
-            os.fsync(file)
-            time.sleep(0.001)
-
-        file.close()
+        testfile1 = f"{self.working_dir}/log/test.log"
+        with open(testfile1, 'w') as file:
+            # Write 1000 lines with a sleep between each line to make sure it takes more then 1s to complete
+            iterations1 = 1000
+            for _ in range(iterations1):
+                file.write("example data")
+                file.write("\n")
+                # Make sure some contents are written to disk so the harvested is able to read it.
+                file.flush()
+                os.fsync(file)
+                time.sleep(0.001)
 
         # Wait until harvester is closed because of ttl
         self.wait_until(
@@ -433,11 +428,9 @@ class Test(BaseTest):
         Test utf8 log file with bom
         Additional test here to make sure in case generation in python is not correct
         """
-        self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/log/*",
-        )
+        self.render_config_template(path=f"{os.path.abspath(self.working_dir)}/log/*")
 
-        os.mkdir(self.working_dir + "/log/")
+        os.mkdir(f"{self.working_dir}/log/")
         self.copy_files(["logs/bom8.log"],
                         target_dir="log")
 
@@ -457,8 +450,8 @@ class Test(BaseTest):
         Test bom log files if bom is removed properly
         """
 
-        os.mkdir(self.working_dir + "/log/")
-        os.mkdir(self.working_dir + "/output/")
+        os.mkdir(f"{self.working_dir}/log/")
+        os.mkdir(f"{self.working_dir}/output/")
 
         message = "Hello World"
 
@@ -474,12 +467,13 @@ class Test(BaseTest):
 
             # Render config with specific encoding
             self.render_config_template(
-                path=os.path.abspath(self.working_dir) + "/log/*",
+                path=f"{os.path.abspath(self.working_dir)}/log/*",
                 encoding=config[0],
                 output_file_filename=config[0],
             )
 
-            logfile = self.working_dir + "/log/" + config[0] + "test.log"
+
+            logfile = f"{self.working_dir}/log/{config[0]}test.log"
 
             # Write bom to file
             with codecs.open(logfile, 'wb') as file:
@@ -490,14 +484,18 @@ class Test(BaseTest):
                 content = message + '\n'
                 file.write(content)
 
-            filebeat = self.start_beat(output=config[0] + ".log")
+            filebeat = self.start_beat(output=f"{config[0]}.log")
 
             self.wait_until(
-                lambda: self.output_has(lines=1, output_file="output/" + config[0]),
-                max_timeout=10)
+                lambda: self.output_has(
+                    lines=1, output_file=f"output/{config[0]}"
+                ),
+                max_timeout=10,
+            )
+
 
             # Verify that output does not contain bom
-            output = self.read_output_json(output_file="output/" + config[0])
+            output = self.read_output_json(output_file=f"output/{config[0]}")
             assert output[0]["message"] == message
 
             filebeat.kill_and_wait()
@@ -507,13 +505,14 @@ class Test(BaseTest):
         Test that symlinks are ignored
         """
         self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/log/symlink.log",
+            path=f"{os.path.abspath(self.working_dir)}/log/symlink.log"
         )
 
-        os.mkdir(self.working_dir + "/log/")
 
-        logfile = self.working_dir + "/log/test.log"
-        symlink = self.working_dir + "/log/symlink.log"
+        os.mkdir(f"{self.working_dir}/log/")
+
+        logfile = f"{self.working_dir}/log/test.log"
+        symlink = f"{self.working_dir}/log/symlink.log"
 
         if os.name == "nt":
             import win32file
@@ -539,14 +538,15 @@ class Test(BaseTest):
         Test if symlinks are harvested
         """
         self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/log/symlink.log",
+            path=f"{os.path.abspath(self.working_dir)}/log/symlink.log",
             symlinks="true",
         )
 
-        os.mkdir(self.working_dir + "/log/")
 
-        logfile = self.working_dir + "/log/test.log"
-        symlink = self.working_dir + "/log/symlink.log"
+        os.mkdir(f"{self.working_dir}/log/")
+
+        logfile = f"{self.working_dir}/log/test.log"
+        symlink = f"{self.working_dir}/log/symlink.log"
 
         if os.name == "nt":
             import win32file
@@ -571,17 +571,18 @@ class Test(BaseTest):
         Test what happens if symlink removed and points to a new file
         """
         self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/log/symlink.log",
+            path=f"{os.path.abspath(self.working_dir)}/log/symlink.log",
             symlinks="true",
             close_removed="false",
             clean_removed="false",
         )
 
-        os.mkdir(self.working_dir + "/log/")
 
-        logfile1 = self.working_dir + "/log/test1.log"
-        logfile2 = self.working_dir + "/log/test2.log"
-        symlink = self.working_dir + "/log/symlink.log"
+        os.mkdir(f"{self.working_dir}/log/")
+
+        logfile1 = f"{self.working_dir}/log/test1.log"
+        logfile2 = f"{self.working_dir}/log/test2.log"
+        symlink = f"{self.working_dir}/log/symlink.log"
 
         if os.name == "nt":
             import win32file
@@ -636,16 +637,17 @@ class Test(BaseTest):
         Tests that if a symlink to a file is removed, further data is read which is added to the original file
         """
         self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/log/symlink.log",
+            path=f"{os.path.abspath(self.working_dir)}/log/symlink.log",
             symlinks="true",
             clean_removed="false",
             close_removed="false",
         )
 
-        os.mkdir(self.working_dir + "/log/")
 
-        logfile = self.working_dir + "/log/test.log"
-        symlink = self.working_dir + "/log/symlink.log"
+        os.mkdir(f"{self.working_dir}/log/")
+
+        logfile = f"{self.working_dir}/log/test.log"
+        symlink = f"{self.working_dir}/log/symlink.log"
 
         if os.name == "nt":
             import win32file
@@ -687,14 +689,14 @@ class Test(BaseTest):
         Tests that if symlink and original file are read, that only events from one are added
         """
         self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/log/*",
-            symlinks="true",
+            path=f"{os.path.abspath(self.working_dir)}/log/*", symlinks="true"
         )
 
-        os.mkdir(self.working_dir + "/log/")
 
-        logfile = self.working_dir + "/log/test.log"
-        symlink = self.working_dir + "/log/symlink.log"
+        os.mkdir(f"{self.working_dir}/log/")
+
+        logfile = f"{self.working_dir}/log/test.log"
+        symlink = f"{self.working_dir}/log/symlink.log"
 
         if os.name == "nt":
             import win32file
@@ -723,14 +725,14 @@ class Test(BaseTest):
         Tests what happens if file is truncated and symlink recreated
         """
         self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/log/*",
-            symlinks="true",
+            path=f"{os.path.abspath(self.working_dir)}/log/*", symlinks="true"
         )
 
-        os.mkdir(self.working_dir + "/log/")
 
-        logfile = self.working_dir + "/log/test.log"
-        symlink = self.working_dir + "/log/symlink.log"
+        os.mkdir(f"{self.working_dir}/log/")
+
+        logfile = f"{self.working_dir}/log/test.log"
+        symlink = f"{self.working_dir}/log/symlink.log"
 
         if os.name == "nt":
             import win32file
@@ -784,13 +786,13 @@ class Test(BaseTest):
         Tests that in case of a decoding error it is handled gracefully
         """
         self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/log/*",
-            encoding="utf-16be",
+            path=f"{os.path.abspath(self.working_dir)}/log/*", encoding="utf-16be"
         )
 
-        os.mkdir(self.working_dir + "/log/")
 
-        logfile = self.working_dir + "/log/test.log"
+        os.mkdir(f"{self.working_dir}/log/")
+
+        logfile = f"{self.working_dir}/log/test.log"
 
         with io.open(logfile, 'w', encoding="utf-16") as file:
             file.write(u'hello world1')

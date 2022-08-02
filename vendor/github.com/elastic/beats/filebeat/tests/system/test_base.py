@@ -12,10 +12,11 @@ class Test(BaseTest):
         Test if the basic fields exist.
         """
         self.render_config_template(
-            path=os.path.abspath(self.working_dir) + "/test.log",
+            path=f"{os.path.abspath(self.working_dir)}/test.log"
         )
 
-        with open(self.working_dir + "/test.log", "w") as f:
+
+        with open(f"{self.working_dir}/test.log", "w") as f:
             f.write("test message\n")
 
         filebeat = self.start_beat()

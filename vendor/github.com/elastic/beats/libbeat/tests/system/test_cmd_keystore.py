@@ -14,7 +14,7 @@ class TestCommandKeystore(KeystoreBase):
     def setUp(self):
         super(TestCommandKeystore, self).setUp()
 
-        self.keystore_path = self.working_dir + "/data/keystore"
+        self.keystore_path = f"{self.working_dir}/data/keystore"
 
         self.render_config_template(keystore_path=self.keystore_path)
 

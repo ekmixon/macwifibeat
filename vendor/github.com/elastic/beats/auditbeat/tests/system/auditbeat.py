@@ -13,16 +13,17 @@ from metricbeat import BaseTest as MetricbeatTest
 
 class BaseTest(MetricbeatTest):
     @classmethod
-    def setUpClass(self):
-        self.beat_name = "auditbeat"
-        self.beat_path = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "../../"))
-        super(MetricbeatTest, self).setUpClass()
+    def setUpClass(cls):
+        cls.beat_name = "auditbeat"
+        cls.beat_path = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "../../")
+        )
+
+        super(MetricbeatTest, cls).setUpClass()
 
     def create_file(self, path, contents):
-        f = open(path, 'wb')
-        f.write(contents)
-        f.close()
+        with open(path, 'wb') as f:
+            f.write(contents)
 
     def check_event(self, event, expected):
         for key in expected:

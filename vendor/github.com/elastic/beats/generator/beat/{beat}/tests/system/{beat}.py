@@ -7,7 +7,10 @@ from beat.beat import TestCase
 class BaseTest(TestCase):
 
     @classmethod
-    def setUpClass(self):
-        self.beat_name = "{beat}"
-        self.beat_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
-        super(BaseTest, self).setUpClass()
+    def setUpClass(cls):
+        cls.beat_name = "{beat}"
+        cls.beat_path = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "../../")
+        )
+
+        super(BaseTest, cls).setUpClass()

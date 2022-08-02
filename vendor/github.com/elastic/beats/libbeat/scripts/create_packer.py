@@ -7,7 +7,7 @@ import argparse
 def generate_packer(es_beats, abs_path, beat, beat_path, version):
 
     # create dev-tools/packer
-    packer_path = abs_path + "/dev-tools/packer"
+    packer_path = f"{abs_path}/dev-tools/packer"
 
     print(packer_path)
 
@@ -16,20 +16,20 @@ def generate_packer(es_beats, abs_path, beat, beat_path, version):
         return
 
     # create all directories needed
-    os.makedirs(packer_path + "/beats")
+    os.makedirs(f"{packer_path}/beats")
 
-    templates = es_beats + "/libbeat/scripts/dev-tools/packer"
+    templates = f"{es_beats}/libbeat/scripts/dev-tools/packer"
 
-    content = load_file(templates + "/version.yml", beat, beat_path, version)
-    with open(packer_path + "/version.yml", "w") as f:
+    content = load_file(f"{templates}/version.yml", beat, beat_path, version)
+    with open(f"{packer_path}/version.yml", "w") as f:
         f.write(content)
 
-    content = load_file(templates + "/Makefile", beat, beat_path, version)
-    with open(packer_path + "/Makefile", "w") as f:
+    content = load_file(f"{templates}/Makefile", beat, beat_path, version)
+    with open(f"{packer_path}/Makefile", "w") as f:
         f.write(content)
 
-    content = load_file(templates + "/config.yml", beat, beat_path, version)
-    with open(packer_path + "/beats/" + beat + ".yml", "w") as f:
+    content = load_file(f"{templates}/config.yml", beat, beat_path, version)
+    with open(f"{packer_path}/beats/{beat}.yml", "w") as f:
         f.write(content)
 
     print("Packer directories created")
